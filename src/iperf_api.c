@@ -1078,6 +1078,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
         {"bind-dev", required_argument, NULL, OPT_BIND_DEV},
 #endif /* HAVE_SO_BINDTODEVICE */
         {"cport", required_argument, NULL, OPT_CLIENT_PORT},
+        {"udp-segment-size", required_argument, NULL, 'U'},
         {"set-mss", required_argument, NULL, 'M'},
         {"no-delay", no_argument, NULL, 'N'},
         {"version4", no_argument, NULL, '4'},
@@ -1153,7 +1154,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
     FILE *ptr_file;
 #endif /* HAVE_SSL */
 
-    while ((flag = getopt_long(argc, argv, "p:f:i:D1VJvsc:ub:t:n:k:l:P:Rw:B:M:N46S:L:ZO:F:A:T:C:dI:hX:", longopts, NULL)) != -1) {
+    while ((flag = getopt_long(argc, argv, "p:f:i:D1VJvsc:ub:t:n:k:l:P:Rw:B:M:N46S:L:ZO:F:A:T:C:dI:hX:U:", longopts, NULL)) != -1) {
         switch (flag) {
             case 'p':
 		portno = atoi(optarg);
@@ -1384,6 +1385,13 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
                     return -1;
                 }
 		client_flag = 1;
+                break;
+            case 'U':
+                test->settings->uso_size = atoi(optarg);
+                if (test->settings->uso_size > MAX_MSS) {
+                    i_errno = IEMSS;
+                    return -1;
+                }
                 break;
             case 'N':
                 test->no_delay = 1;
@@ -3211,6 +3219,7 @@ iperf_reset_test(struct iperf_test *test)
     test->settings->rate = 0;
     test->settings->burst = 0;
     test->settings->mss = 0;
+    test->settings->uso_size = 0;
     test->settings->tos = 0;
     test->settings->dont_fragment = 0;
     test->zerocopy = 0;

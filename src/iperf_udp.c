@@ -457,6 +457,14 @@ iperf_udp_accept(struct iperf_test *test)
 	}
     }
 
+    if (test->settings->uso_size > 0) {
+#define SOL_UDP 	    17
+#define UDP_GRO 	    104
+        if (setsockopt(s, SOL_UDP, UDP_GRO, &test->settings->uso_size,
+                       sizeof(test->settings->uso_size)) < 0)
+            printf(">>>set udp gro failed, errno:%d\n", errno);
+    }
+
     /*
      * Create a new "listening" socket to replace the one we were using before.
      */
@@ -582,6 +590,15 @@ iperf_udp_connect(struct iperf_test *test)
     tv.tv_usec = 0;
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 #endif
+
+    if (test->settings->uso_size > 0) {
+#define SOL_UDP 	    17
+#define UDP_SEGMENT 	103
+        if (setsockopt(s, SOL_UDP, UDP_SEGMENT, &test->settings->uso_size,
+                       sizeof(test->settings->uso_size)) < 0)
+            printf(">>>set udp segment size %d failed, errno:%d\n",
+                   test->settings->uso_size, errno);
+    }
 
     /*
      * Write a datagram to the UDP stream to let the server know we're here.

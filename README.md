@@ -161,3 +161,9 @@ publicly and display publicly, and to permit others to do so.
 
 This code is distributed under a BSD style license, see the LICENSE
 file for complete information.
+
+uso
+---------
+cd /src
+./iperf -s -p 9999 -U 1
+./iperf3 -c 10.10.254.10 -i 1 -t 0 -p 9999 -u -U 1000 -l 4000
