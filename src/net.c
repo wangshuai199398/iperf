@@ -75,6 +75,25 @@ static int nread_overall_timeout = 30;
  */
 extern int gerror;
 
+static void print_sockaddr(const struct sockaddr *addr) {
+    char ipstr[INET6_ADDRSTRLEN];
+    int port;
+
+    if (addr->sa_family == AF_INET) {
+        struct sockaddr_in *ipv4 = (struct sockaddr_in *)addr;
+        inet_ntop(AF_INET, &(ipv4->sin_addr), ipstr, sizeof(ipstr));
+        port = ntohs(ipv4->sin_port);
+        printf("Binding to IPv4: %s:%d\n", ipstr, port);
+    } else if (addr->sa_family == AF_INET6) {
+        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)addr;
+        inet_ntop(AF_INET6, &(ipv6->sin6_addr), ipstr, sizeof(ipstr));
+        port = ntohs(ipv6->sin6_port);
+        printf("Binding to IPv6: [%s]:%d\n", ipstr, port);
+    } else {
+        printf("Unknown address family: %d\n", addr->sa_family);
+    }
+}
+
 /*
  * timeout_connect adapted from netcat, via OpenBSD and FreeBSD
  * Copyright (c) 2001 Eric Jackson <ericj@monkey.org>
@@ -332,9 +351,9 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
      * even though it implements IPV6_V6ONLY.
      */
 #if defined(IPV6_V6ONLY) && !defined(__OpenBSD__)
-    if (debug)
-        printf("%s: IPV6_V6ONLY !__OpenBSD__\n", __func__);
     if (res->ai_family == AF_INET6 && (domain == AF_UNSPEC || domain == AF_INET6)) {
+        if (debug)
+            printf("%s: res->ai_family %d\n", __func__, res->ai_family);
 	    if (domain == AF_UNSPEC)
 	        opt = 0;
 	    else
@@ -349,7 +368,7 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
     }
 #endif /* IPV6_V6ONLY */
     if (debug)
-        printf("%s: bind to %s\n", __func__, local);
+        print_sockaddr((struct sockaddr *) res->ai_addr);
 
     if (bind(s, (struct sockaddr *) res->ai_addr, res->ai_addrlen) < 0) {
         saved_errno = errno;
