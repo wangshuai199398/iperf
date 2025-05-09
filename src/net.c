@@ -259,7 +259,7 @@ netdial(int domain, int proto, const char *local, const char *bind_dev, int loca
 /***************************************************************/
 
 int
-netannounce(int domain, int proto, const char *local, const char *bind_dev, int port)
+netannounce(int domain, int proto, const char *local, const char *bind_dev, int port, int debug)
 {
     struct addrinfo hints, *res;
     char portstr[6];
@@ -280,10 +280,9 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
      * result structure is set to AF_INET6.
      */
     if (domain == AF_UNSPEC && !local) {
-	hints.ai_family = AF_INET6;
-    }
-    else {
-	hints.ai_family = domain;
+	    hints.ai_family = AF_INET6;
+    } else {
+	    hints.ai_family = domain;
     }
     hints.ai_socktype = proto;
     hints.ai_flags = AI_PASSIVE;
@@ -292,9 +291,11 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
 
     s = socket(res->ai_family, proto, 0);
     if (s < 0) {
-	freeaddrinfo(res);
+	    freeaddrinfo(res);
         return -1;
     }
+    if (debug)
+        printf("%s: create socket %d ai_family %d proto %d\n", __func__, s, res->ai_family, proto);
 
     if (bind_dev) {
 #if defined(HAVE_SO_BINDTODEVICE)
@@ -311,13 +312,16 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
     }
 
     opt = 1;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-		   (char *) &opt, sizeof(opt)) < 0) {
-	saved_errno = errno;
-	close(s);
-	freeaddrinfo(res);
-	errno = saved_errno;
-	return -1;
+    if (debug)
+        printf("%s: setsockopt SO_REUSEADDR %d\n", __func__, opt);
+    //SOL_SOCKET:   表示这是一个通用套接字级别的选项，不是协议级别的，而是套接字本身的属性
+    //SO_REUSEADDR: 允许绑定一个已经处于TIME_WAIT状态的地址。即如果服务端关闭后，端口还没释放完，设置了这个就可以立即重新绑定这个端口
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof(opt)) < 0) {
+	    saved_errno = errno;
+	    close(s);
+	    freeaddrinfo(res);
+	    errno = saved_errno;
+	    return -1;
     }
     /*
      * If we got an IPv6 socket, figure out if it should accept IPv4
@@ -328,26 +332,29 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
      * even though it implements IPV6_V6ONLY.
      */
 #if defined(IPV6_V6ONLY) && !defined(__OpenBSD__)
+    if (debug)
+        printf("%s: IPV6_V6ONLY !__OpenBSD__\n", __func__);
     if (res->ai_family == AF_INET6 && (domain == AF_UNSPEC || domain == AF_INET6)) {
-	if (domain == AF_UNSPEC)
-	    opt = 0;
-	else
-	    opt = 1;
-	if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY,
-		       (char *) &opt, sizeof(opt)) < 0) {
-	    saved_errno = errno;
-	    close(s);
-	    freeaddrinfo(res);
-	    errno = saved_errno;
-	    return -1;
-	}
+	    if (domain == AF_UNSPEC)
+	        opt = 0;
+	    else
+	        opt = 1;
+	    if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &opt, sizeof(opt)) < 0) {
+	        saved_errno = errno;
+	        close(s);
+	        freeaddrinfo(res);
+	        errno = saved_errno;
+	        return -1;
+	    }
     }
 #endif /* IPV6_V6ONLY */
+    if (debug)
+        printf("%s: bind to %s\n", __func__, local);
 
     if (bind(s, (struct sockaddr *) res->ai_addr, res->ai_addrlen) < 0) {
         saved_errno = errno;
         close(s);
-	freeaddrinfo(res);
+	    freeaddrinfo(res);
         errno = saved_errno;
         return -1;
     }
@@ -355,10 +362,12 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
     freeaddrinfo(res);
 
     if (proto == SOCK_STREAM) {
+        if (debug)
+            printf("%s: listen %d\n", __func__, s);
         if (listen(s, INT_MAX) < 0) {
-	    saved_errno = errno;
-	    close(s);
-	    errno = saved_errno;
+	        saved_errno = errno;
+	        close(s);
+	        errno = saved_errno;
             return -1;
         }
     }

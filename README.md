@@ -3,57 +3,21 @@ iperf3:  A TCP, UDP, and SCTP network bandwidth measurement tool
 
 Summary
 -------
+iperf 是一个用于在 IP 网络上进行最大可达带宽主动测量的工具。它支持调整与时间控制、协议、缓冲区相关的各种参数。
+每次测试都会报告测得的吞吐量 / 比特率、丢包情况及其他参数。
 
-iperf is a tool for active measurements of the maximum achievable
-bandwidth on IP networks.  It supports tuning of various parameters
-related to timing, protocols, and buffers.  For each test it reports
-the measured throughput / bitrate, loss, and other parameters.
+本版本通常被称为 iperf3，它是对最初由 NLANR/DAST 开发的原始版本的重新设计。
+iperf3 是从零开始实现的一个新版本，目标是构建一个更小、更简单的代码库，并开发一个可以在其他程序中使用的功能库版本。
+iperf3 还包含一些在其他工具（如 nuttcp 和 netperf）中具备但原始 iperf 中缺失的功能。
+例如：零拷贝模式（zero-copy mode） 和 可选的 JSON 输出格式。
+请注意，iperf3 与原始版本的 iperf 不兼容。
 
-This version, sometimes referred to as iperf3, is a redesign of an
-original version developed at NLANR/DAST.  iperf3 is a new
-implementation from scratch, with the goal of a smaller, simpler code
-base, and a library version of the functionality that can be used in
-other programs. iperf3 also has a number of features found in other tools
-such as nuttcp and netperf, but were missing from the original iperf.
-These include, for example, a zero-copy mode and optional JSON output.
-Note that iperf3 is *not* backwards compatible with the original iperf.
+iperf3 的主要开发平台为：Ubuntu Linux、FreeBSD 和 macOS。目前，这些是官方支持的唯一平台，
+但也有用户在 OpenBSD、NetBSD、Android、Solaris 以及其他 Linux 发行版 上成功运行的报告。
 
-Primary development for iperf3 takes place on Ubuntu Linux, FreeBSD,
-and macOS.  At this time, these are the only officially supported
-platforms, however there have been some reports of success with
-OpenBSD, NetBSD, Android, Solaris, and other Linux distributions.
+iperf3 主要由 ESnet / 劳伦斯伯克利国家实验室（Lawrence Berkeley National Laboratory） 开发，并以 三条款 BSD 许可证 进行发布。
 
-iperf3 is principally developed by ESnet / Lawrence Berkeley National
-Laboratory.  It is released under a three-clause BSD license.
-
-For more information see: https://software.es.net/iperf
-
-Source code and issue tracker: https://github.com/esnet/iperf
-
-Discussion forums: https://github.com/esnet/iperf/discussions
-
-Reporting security vulnerabilities: iperf@es.net
-
-Obtaining iperf3
-----------------
-
-Downloads of iperf3 are available at:
-
-    https://downloads.es.net/pub/iperf/
-
-To check out the most recent code, clone the git repository at:
-
-    https://github.com/esnet/iperf.git
-
-Building iperf3
----------------
-
-### Prerequisites: ###
-
-None.
-
-### Building ###
-
+### Building 
     ./configure; make; make install
 
 (Note: If configure fails, try running `./bootstrap.sh` first)
@@ -61,114 +25,32 @@ None.
 Invoking iperf3
 ---------------
 
-iperf3 includes a manual page listing all of the command-line options.
-The manual page is the most up-to-date reference to the various flags and parameters.
-
-For sample command line usage, see:
-
-https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf/
-
-Using the default options, iperf is meant to show typical well
-designed application performance.  "Typical well designed application"
-means avoiding artificial enhancements that work only for testing
-(such as splice()'ing the data to /dev/null).  iperf does also have
-flags for "extreme best case" optimizations, but they must be
-explicitly activated.
+在使用默认选项的情况下，iperf 的目标是展示典型的、设计良好的应用程序的性能。所谓“典型的设计良好的应用程序”，是指避免使用那些仅在测试中有效的人工优化手段（例如将数据通过 splice() 直接传输到 /dev/null）
+iperf 也提供了一些用于**“极限最佳情况”优化的参数，但这些优化必须由用户显式启用
 
 These flags include:
 
     -Z, --zerocopy            use a 'zero copy' sendfile() method of sending data
     -A, --affinity n/n,m      set CPU affinity
 
-Bug and Security Reports
-------------------------
-
-Before submitting a bug report, please make sure you're running the
-latest version of the code, and confirm that your issue has not
-already been fixed.  Then submit to the iperf3 issue tracker on
-GitHub:
-
-https://github.com/esnet/iperf/issues
-
-In your issue submission, please indicate the version of iperf3 and
-what platform you're trying to run on (provide the platform
-information even if you're not using a supported platform, we
-*might* be able to help anyway).  Exact command-line arguments will
-help us recreate your problem.  If you're getting error messages,
-please include them verbatim if possible, but remember to sanitize any
-sensitive information.
-
-If you have a question about usage or about the code, please do *not*
-submit an issue.  Please use one of the mailing lists for that.
-
-If you suspect there is a potential security issue, please contact the
-developers at:
-
-iperf@es.net
-
-Relation to iperf 2.x
----------------------
-
-Although iperf2 and iperf3 both measure network performance,
-they are not compatible with each other.
-The projects (as of mid-2021) are in active, but separate, development.
-The continuing iperf2 development
-project can be found at https://sourceforge.net/projects/iperf2/.
-
-Known Issues
-------------
-
-A set of known issues is maintained on the iperf3 Web pages:
-
-https://software.es.net/iperf/dev.html#known-issues
-
-Links
------
-
-This section lists links to user-contributed Web pages regarding
-iperf3.  ESnet and Lawrence Berkeley National Laboratory bear no
-responsibility for the content of these pages.
-
-* Installation instructions for Debian Linux (by Cameron Camp
-  <cameron@ivdatacenter.com>):
-
-  http://cheatsheet.logicalwebhost.com/iperf-network-testing/
-
-Copyright
----------
-
-iperf, Copyright (c) 2014-2023, The Regents of the University of
-California, through Lawrence Berkeley National Laboratory (subject
-to receipt of any required approvals from the U.S. Dept. of
-Energy).  All rights reserved.
-
-If you have questions about your rights to use or distribute this
-software, please contact Berkeley Lab's Technology Transfer
-Department at TTD@lbl.gov.
-
-NOTICE.  This software is owned by the U.S. Department of Energy.
-As such, the U.S. Government has been granted for itself and others
-acting on its behalf a paid-up, nonexclusive, irrevocable,
-worldwide license in the Software to reproduce, prepare derivative
-works, and perform publicly and display publicly.  Beginning five
-(5) years after the date permission to assert copyright is obtained
-from the U.S. Department of Energy, and subject to any subsequent
-five (5) year renewals, the U.S. Government is granted for itself
-and others acting on its behalf a paid-up, nonexclusive,
-irrevocable, worldwide license in the Software to reproduce,
-prepare derivative works, distribute copies to the public, perform
-publicly and display publicly, and to permit others to do so.
-
-This code is distributed under a BSD style license, see the LICENSE
-file for complete information.
 
 uso
 ---------
-./configure; make
-
 cd /src
 
 ./iperf3 -s -p 9999 -U 1
 ./iperf3 -c 10.10.254.10 -i 1 -t 0 -p 9999 -u -U 1000 -l 4000
 查看日志：
 ./iperf3 -d -V
+
+宏定义
+---------
+HAVE_TCP_CONGESTION
+    当前系统的TCP协议栈是否支持设置或获取TCP 拥塞控制算法，默认0
+    TCP 拥塞控制算法是 TCP 协议中用于控制网络拥塞的核心机制，常见的算法包括：
+	•cubic（默认，Linux 上常用）
+	•reno
+	•bbr（Google 开发的高性能算法）
+	•westwood 等
+    查看当前使用的算法：
+    cat /proc/sys/net/ipv4/tcp_congestion_control

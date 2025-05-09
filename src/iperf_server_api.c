@@ -97,24 +97,25 @@ int
 iperf_server_listen(struct iperf_test *test)
 {
     retry:
-    if((test->listener = netannounce(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, test->server_port)) < 0) {
-	if (errno == EAFNOSUPPORT && (test->settings->domain == AF_INET6 || test->settings->domain == AF_UNSPEC)) {
+    if (test->debug) {
+        printf("%s: domain %d bind_address %s bind_dev %s server_port %d\n", __func__, test->settings->domain, test->bind_address, test->bind_dev, test->server_port);
+    }
+    if((test->listener = netannounce(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, test->server_port, test->debug)) < 0) {
+	    if (errno == EAFNOSUPPORT && (test->settings->domain == AF_INET6 || test->settings->domain == AF_UNSPEC)) {
 	    /* If we get "Address family not supported by protocol", that
 	    ** probably means we were compiled with IPv6 but the running
 	    ** kernel does not actually do IPv6.  This is not too unusual,
 	    ** v6 support is and perhaps always will be spotty.
 	    */
-	    warning("this system does not seem to support IPv6 - trying IPv4");
-	    test->settings->domain = AF_INET;
-	    goto retry;
-	} else {
-	    i_errno = IELISTEN;
-	    return -1;
-	}
+	        warning("this system does not seem to support IPv6 - trying IPv4");
+	        test->settings->domain = AF_INET;
+	        goto retry;
+	    } else {
+	        i_errno = IELISTEN;
+	        return -1;
+	    }
     }
 
-    if (test->debug)
-        printf("iperf_server_listen: %d\n", test->listener);
     if (!test->json_output) {
         if (test->server_last_run_rc != 2)
             test->server_test_number +=1;
@@ -130,7 +131,11 @@ iperf_server_listen(struct iperf_test *test)
     FD_ZERO(&test->read_set);
     FD_ZERO(&test->write_set);
     FD_SET(test->listener, &test->read_set);
-    if (test->listener > test->max_fd) test->max_fd = test->listener;
+    
+    if (debug)
+        printf("iperf_server_listen: listener fd %d test->max_fd %d\n", test->listener, test->max_fd);
+    if (test->listener > test->max_fd)
+        test->max_fd = test->listener;
 
     return 0;
 }
@@ -218,10 +223,11 @@ iperf_handle_message_server(struct iperf_test *test)
     int rval;
     struct iperf_stream *sp;
 
-    // XXX: Need to rethink how this behaves to fit API
+    if (debug)
+        printf("%s: Nread test->ctrl_sck %d\n", __func__, test->ctrl_sck);
     if ((rval = Nread(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp)) <= 0) {
         if (rval == 0) {
-	    iperf_err(test, "the client has unexpectedly closed the connection");
+	        iperf_err(test, "the client has unexpectedly closed the connection");
             i_errno = IECTRLCLOSE;
             test->state = IPERF_DONE;
             return 0;
@@ -235,7 +241,7 @@ iperf_handle_message_server(struct iperf_test *test)
         case TEST_START:
             break;
         case TEST_END:
-	    test->done = 1;
+	        test->done = 1;
             cpu_util(test->cpu_util);
             test->stats_callback(test);
             SLIST_FOREACH(sp, &test->streams, streams) {
@@ -245,11 +251,11 @@ iperf_handle_message_server(struct iperf_test *test)
             }
             test->reporter_callback(test);
 	    if (iperf_set_send_state(test, EXCHANGE_RESULTS) != 0)
-                return -1;
-            if (iperf_exchange_results(test) < 0)
-                return -1;
+            return -1;
+        if (iperf_exchange_results(test) < 0)
+            return -1;
 	    if (iperf_set_send_state(test, DISPLAY_RESULTS) != 0)
-                return -1;
+            return -1;
             if (test->on_test_finish)
                 test->on_test_finish(test);
             break;
@@ -260,14 +266,14 @@ iperf_handle_message_server(struct iperf_test *test)
 
 	    // Temporarily be in DISPLAY_RESULTS phase so we can get
 	    // ending summary statistics.
-	    signed char oldstate = test->state;
-	    cpu_util(test->cpu_util);
-	    test->state = DISPLAY_RESULTS;
-	    test->reporter_callback(test);
-	    test->state = oldstate;
+	        signed char oldstate = test->state;
+	        cpu_util(test->cpu_util);
+	        test->state = DISPLAY_RESULTS;
+	        test->reporter_callback(test);
+	        test->state = oldstate;
 
             // XXX: Remove this line below!
-	    iperf_err(test, "the client has terminated");
+	        iperf_err(test, "the client has terminated");
             SLIST_FOREACH(sp, &test->streams, streams) {
                 FD_CLR(sp->socket, &test->read_set);
                 FD_CLR(sp->socket, &test->write_set);
@@ -499,7 +505,6 @@ iperf_run_server(struct iperf_test *test)
     int send_streams_accepted, rec_streams_accepted;
     int streams_to_send = 0, streams_to_rec = 0;
 #if defined(HAVE_TCP_CONGESTION)
-    printf("iperf_run_server: %s\n", test->congestion);
     int saved_errno;
 #endif /* HAVE_TCP_CONGESTION */
     fd_set read_set, write_set;
@@ -572,12 +577,16 @@ iperf_run_server(struct iperf_test *test)
 
         // Ensure select() will timeout to allow handling error cases that require server restart
         if (test->state == IPERF_START) {       // In idle mode server may need to restart
+            if (debug)
+                printf("%s: in idle state, timeout %p\n", __func__, timeout);
             if (timeout == NULL && test->settings->idle_timeout > 0) {
                 used_timeout.tv_sec = test->settings->idle_timeout;
                 used_timeout.tv_usec = 0;
                 timeout = &used_timeout;
             }
         } else if (test->mode != SENDER) {     // In non-reverse active mode server ensures data is received
+            if (debug)
+                printf("%s: test->mode %d in active state, timeout %p\n", __func__, test->mode, timeout);
             timeout_us = -1;
             if (timeout != NULL) {
                 used_timeout.tv_sec = timeout->tv_sec;
@@ -595,7 +604,10 @@ iperf_run_server(struct iperf_test *test)
             timeout = &used_timeout;
         }
 
-        result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
+        if (debug)
+            printf("%s: select max_fd %d\n", __func__, test->max_fd);
+
+        result = select(test->max_fd + 1, &read_set, &write_set, NULL);
         if (result < 0 && errno != EINTR) {
             cleanup_server(test);
             i_errno = IESELECT;
@@ -620,22 +632,16 @@ iperf_run_server(struct iperf_test *test)
                             printf("Server restart (#%d) in idle state as no connection request was received for %d sec\n",
                                 test->server_forced_idle_restarts_count, test->settings->idle_timeout);
                         cleanup_server(test);
-			if ( iperf_get_test_one_off(test) ) {
-			  if (test->debug)
-                            printf("No connection request was received for %d sec in one-off mode; exiting.\n",
-				   test->settings->idle_timeout);
-			  exit(0);
-			}
+			            if ( iperf_get_test_one_off(test) ) {
+			                if (test->debug)
+                                printf("No connection request was received for %d sec in one-off mode; exiting.\n",
+				            test->settings->idle_timeout);
+			                exit(0);
+			            }
 
                         return 2;
                     }
-                }
-
-                /*
-                 * Running a test. If we're receiving, be sure we're making
-                 * progress (sender hasn't died/crashed).
-                 */
-                else if (test->mode != SENDER && t_usecs > rcv_timeout_us) {
+                } else if (test->mode != SENDER && t_usecs > rcv_timeout_us) {
                     /* Idle timeout if no new blocks received */
                     if (test->blocks_received == last_receive_blocks) {
                         test->server_forced_no_msg_restarts_count += 1;
@@ -688,20 +694,19 @@ iperf_run_server(struct iperf_test *test)
 
             if (test->state == CREATE_STREAMS) {
                 if (FD_ISSET(test->prot_listener, &read_set)) {
+                    if (test->debug)
+                        printf("%s: accepting new connection on prot_listener %d\n", __func__, test->prot_listener);
                     if ((s = test->protocol->accept(test)) < 0) {
 			            cleanup_server(test);
                         return -1;
 		            }
 
-		    /* apply other common socket options */
-                    if (iperf_common_sockopts(test, s) < 0)
-                    {
+                    if (iperf_common_sockopts(test, s) < 0) {
                         cleanup_server(test);
                         return -1;
                     }
 
                     if (!is_closed(s)) {
-
 #if defined(HAVE_TCP_USER_TIMEOUT)
 		                if (test->protocol->id == Ptcp) {
                             int opt;
@@ -814,7 +819,7 @@ iperf_run_server(struct iperf_test *test)
                             FD_CLR(test->listener, &test->read_set);
                             close(test->listener);
 			                test->listener = -1;
-                            if ((s = netannounce(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, test->server_port)) < 0) {
+                            if ((s = netannounce(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, test->server_port, test->debug)) < 0) {
 				                cleanup_server(test);
                                 i_errno = IELISTEN;
                                 return -1;
@@ -842,7 +847,7 @@ iperf_run_server(struct iperf_test *test)
 		            cpu_util(NULL);
 
 		            if (iperf_set_send_state(test, TEST_START) != 0) {
-			        cleanup_server(test);
+			            cleanup_server(test);
                         return -1;
 		            }
                     if (iperf_init_test(test) < 0) {
@@ -912,8 +917,8 @@ iperf_run_server(struct iperf_test *test)
     cleanup_server(test);
 
     if (test->server_affinity != -1)
-	if (iperf_clearaffinity(test) != 0)
-	    return -1;
+	    if (iperf_clearaffinity(test) != 0)
+	        return -1;
 
     return 0;
 }
