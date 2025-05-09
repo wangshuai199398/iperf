@@ -4704,8 +4704,8 @@ iperf_got_sigend(struct iperf_test *test)
 int
 iperf_create_pidfile(struct iperf_test *test)
 {
-    printf("test->pidfile %s", test->pidfile);
     if (test->pidfile) {
+        printf("test->pidfile %s", test->pidfile);
 	    int fd;
 	    char buf[8];
 
