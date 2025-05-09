@@ -422,7 +422,8 @@ iperf_connect(struct iperf_test *test)
     }
 
 #if defined(HAVE_TCP_USER_TIMEOUT)
-    printf("%s: HAVE_TCP_USER_TIMEOUT %d\n", __func__, HAVE_TCP_USER_TIMEOUT);
+    if (test->debug)
+        printf("%s: test->settings->snd_timeout %u\n", __func__, test->settings->snd_timeout);
     if ((opt = test->settings->snd_timeout)) {
         printf("%s: opt %d\n", __func__, opt);
         //设置 TCP 连接的用户超时时间（TCP_USER_TIMEOUT）：即如果在指定时间内对方没有确认你发出的数据，连接就会被认为中断并关闭
