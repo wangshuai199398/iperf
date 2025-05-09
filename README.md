@@ -57,4 +57,8 @@ HAVE_TCP_CONGESTION 默认0
 
 HAVE_TCP_USER_TIMEOUT 默认1
     设置超时时间
-    
+
+HAVE_DONT_FRAGMENT 1
+
+HAVE_SSL           1
+

@@ -306,7 +306,7 @@ iperf_handle_message_client(struct iperf_test *test)
         case PARAM_EXCHANGE:
             if (iperf_exchange_parameters(test) < 0)
                 return -1;
-            if (test->on_connect)
+            if (test->on_connect)//iperf_on_connect
                 test->on_connect(test);
             break;
         case CREATE_STREAMS:
