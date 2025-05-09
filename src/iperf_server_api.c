@@ -115,6 +115,9 @@ iperf_server_listen(struct iperf_test *test)
 	        return -1;
 	    }
     }
+    if (test->debug) {
+        printf("%s: domain %d bind_address %s bind_dev %s server_port %d\n", __func__, test->settings->domain, test->bind_address, test->bind_dev, test->server_port);
+    }
 
     if (!test->json_output) {
         if (test->server_last_run_rc != 2)
@@ -133,7 +136,7 @@ iperf_server_listen(struct iperf_test *test)
     FD_SET(test->listener, &test->read_set);
     
     if (test->debug)
-        printf("iperf_server_listen: listener fd %d test->max_fd %d\n", test->listener, test->max_fd);
+        printf("%s: listener fd %d test->max_fd %d\n", __func__, test->listener, test->max_fd);
     if (test->listener > test->max_fd)
         test->max_fd = test->listener;
 
