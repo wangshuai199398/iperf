@@ -881,16 +881,16 @@ void
 iperf_on_test_start(struct iperf_test *test)
 {
     if (test->json_output) {
-	cJSON_AddItemToObject(test->json_start, "test_start", iperf_json_printf("protocol: %s  num_streams: %d  blksize: %d  omit: %d  duration: %d  bytes: %d  blocks: %d  reverse: %d  tos: %d  target_bitrate: %d bidir: %d fqrate: %d", test->protocol->name, (int64_t) test->num_streams, (int64_t) test->settings->blksize, (int64_t) test->omit, (int64_t) test->duration, (int64_t) test->settings->bytes, (int64_t) test->settings->blocks, test->reverse?(int64_t)1:(int64_t)0, (int64_t) test->settings->tos, (int64_t) test->settings->rate, (int64_t) test->bidirectional, (uint64_t) test->settings->fqrate));
+	    cJSON_AddItemToObject(test->json_start, "test_start", iperf_json_printf("protocol: %s  num_streams: %d  blksize: %d  omit: %d  duration: %d  bytes: %d  blocks: %d  reverse: %d  tos: %d  target_bitrate: %d bidir: %d fqrate: %d", test->protocol->name, (int64_t) test->num_streams, (int64_t) test->settings->blksize, (int64_t) test->omit, (int64_t) test->duration, (int64_t) test->settings->bytes, (int64_t) test->settings->blocks, test->reverse?(int64_t)1:(int64_t)0, (int64_t) test->settings->tos, (int64_t) test->settings->rate, (int64_t) test->bidirectional, (uint64_t) test->settings->fqrate));
     } else {
-	if (test->verbose) {
-	    if (test->settings->bytes)
-		iperf_printf(test, test_start_bytes, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->bytes, test->settings->tos);
-	    else if (test->settings->blocks)
-		iperf_printf(test, test_start_blocks, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->blocks, test->settings->tos);
-	    else
-		iperf_printf(test, test_start_time, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->duration, test->settings->tos);
-	}
+	    if (test->verbose) {
+	        if (test->settings->bytes)
+		    iperf_printf(test, test_start_bytes, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->bytes, test->settings->tos);
+	        else if (test->settings->blocks)
+		    iperf_printf(test, test_start_blocks, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->blocks, test->settings->tos);
+	        else
+		    iperf_printf(test, test_start_time, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->duration, test->settings->tos);
+	    }
     }
 }
 
@@ -932,8 +932,9 @@ iperf_on_connect(struct iperf_test *test)
     now_secs = time((time_t*) 0);
     (void) strftime(now_str, sizeof(now_str), rfc1123_fmt, gmtime(&now_secs));
     if (test->debug) {
-        printf("test->json_output %d\n", test->json_output);
+        printf("%s: test->json_output %d\n", __func__, test->json_output);
     }
+
     if (test->json_output)
 	    cJSON_AddItemToObject(test->json_start, "timestamp", iperf_json_printf("time: %s  timesecs: %d", now_str, (int64_t) now_secs));
     else if (test->verbose)
@@ -943,6 +944,7 @@ iperf_on_connect(struct iperf_test *test)
 	    if (test->json_output)
 	        cJSON_AddItemToObject(test->json_start, "connecting_to", iperf_json_printf("host: %s  port: %d", test->server_hostname, (int64_t) test->server_port));
 	    else {
+            //Connecting to host 1.1.1.1, port 1234
 	        iperf_printf(test, report_connecting, test->server_hostname, test->server_port);
 	        if (test->reverse)
 		        iperf_printf(test, report_reverse, test->server_hostname);

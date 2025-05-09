@@ -556,8 +556,7 @@ iperf_run_client(struct iperf_test * test)
     int64_t rcv_timeout_us;
     int i_errno_save;
 
-    if (NULL == test)
-    {
+    if (NULL == test) {
         iperf_err(NULL, "No test\n");
         return -1;
     }
@@ -601,6 +600,8 @@ iperf_run_client(struct iperf_test * test)
 
     startup = 1;
     while (test->state != IPERF_DONE) {
+        if (test->debug)
+            printf("%s: ->while test->state %d\n", __func__, test->state);
 	    memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	    memcpy(&write_set, &test->write_set, sizeof(fd_set));
 	    iperf_time_now(&now);
@@ -637,7 +638,8 @@ iperf_run_client(struct iperf_test * test)
              * server or network, and test should be terminated./
              */
             iperf_time_now(&now);
-            printf("%s: ->iperf_time_diff test->state %d\n", __func__, test->state);
+            if (test->debug)
+                printf("%s: ->iperf_time_diff test->state %d\n", __func__, test->state);
             if (iperf_time_diff(&now, &last_receive_time, &diff_time) == 0) {
                 t_usecs = iperf_time_in_usecs(&diff_time);
                 if (t_usecs > rcv_timeout_us) {
@@ -665,6 +667,7 @@ iperf_run_client(struct iperf_test * test)
  	            if (iperf_handle_message_client(test) < 0) {
 		            goto cleanup_and_fail;
 		        }
+                //从集合中移除文件描述符
 		        FD_CLR(test->ctrl_sck, &read_set);
 	        }
 	    }
