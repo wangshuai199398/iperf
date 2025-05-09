@@ -67,7 +67,7 @@ main(int argc, char **argv)
      * know how to check this on GCC. GCC on CentOS 7 / RHEL 7 is the
      * targeted use case for these check.
      */
-    printf("HAVE_STDATOMIC_H %d, __GNUC__ %d TEST_PROC_AFFINITY %d\n", HAVE_STDATOMIC_H, __GNUC__, TEST_PROC_AFFINITY);
+    printf("HAVE_STDATOMIC_H %d, __GNUC__ %d\n", HAVE_STDATOMIC_H, __GNUC__);
 #ifndef HAVE_STDATOMIC_H
 #ifdef __GNUC__
     if (! __atomic_always_lock_free (sizeof (u_int64_t), 0)) {
@@ -80,6 +80,9 @@ main(int argc, char **argv)
 
     // XXX: Setting the process affinity requires root on most systems.
     //      Is this a feature we really need?
+#ifndef TEST_PROC_AFFINITY
+    printf(" not TEST_PROC_AFFINITY\n");
+#endif
 #ifdef TEST_PROC_AFFINITY
     /* didn't seem to work.... */
     /*
