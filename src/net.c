@@ -352,8 +352,10 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
      */
 #if defined(IPV6_V6ONLY) && !defined(__OpenBSD__)
     if (res->ai_family == AF_INET6 && (domain == AF_UNSPEC || domain == AF_INET6)) {
-        if (debug)
+        if (debug) {
             printf("%s: res->ai_family %d\n", __func__, res->ai_family);
+        }
+
 	    if (domain == AF_UNSPEC)
 	        opt = 0;
 	    else
