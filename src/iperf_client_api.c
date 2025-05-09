@@ -291,7 +291,7 @@ iperf_handle_message_client(struct iperf_test *test)
 	    i_errno = IEINITTEST;
         return -1;
     }
-    /*!!! Why is this read() and not Nread()? */
+
     if ((rval = read(test->ctrl_sck, (char*) &test->state, sizeof(signed char))) <= 0) {
         if (rval == 0) {
             i_errno = IECTRLCLOSE;
@@ -382,9 +382,6 @@ iperf_handle_message_client(struct iperf_test *test)
     return 0;
 }
 
-
-
-/* iperf_connect -- client to server connection function */
 int
 iperf_connect(struct iperf_test *test)
 {
@@ -398,7 +395,7 @@ iperf_connect(struct iperf_test *test)
     }
     FD_ZERO(&test->read_set);
     FD_ZERO(&test->write_set);
-
+    //随机生成一个cookie，后边Nwrite
     make_cookie(test->cookie);
     if (test->debug)
         printf("%s: test->ctrl_sck %d\n", __func__, test->ctrl_sck);
@@ -422,10 +419,9 @@ iperf_connect(struct iperf_test *test)
     }
 
 #if defined(HAVE_TCP_USER_TIMEOUT)
-    if (test->debug)
-        printf("%s: test->settings->snd_timeout %u\n", __func__, test->settings->snd_timeout);
     if ((opt = test->settings->snd_timeout)) {
-        printf("%s: opt %d\n", __func__, opt);
+        if (test->debug)
+            printf("%s: test->settings->snd_timeout %u\n", __func__, test->settings->snd_timeout);
         //设置 TCP 连接的用户超时时间（TCP_USER_TIMEOUT）：即如果在指定时间内对方没有确认你发出的数据，连接就会被认为中断并关闭
         if (setsockopt(test->ctrl_sck, IPPROTO_TCP, TCP_USER_TIMEOUT, &opt, sizeof(opt)) < 0) {
             i_errno = IESETUSERTIMEOUT;
@@ -438,12 +434,15 @@ iperf_connect(struct iperf_test *test)
         i_errno = IESENDCOOKIE;
         return -1;
     }
-
+    //将文件描述符ctrl_sck添加到文件描述符集合read_set中，这样select就会在监听时关注这个fd是否有你关心的事件发生，比如是否可读、可写等
     FD_SET(test->ctrl_sck, &test->read_set);
     if (test->ctrl_sck > test->max_fd)
         test->max_fd = test->ctrl_sck;
+    if (test->debug)
+        printf("%s: test->ctrl_sck %d test->max_fd %d\n", __func__, test->ctrl_sck, test->max_fd);
 
     len = sizeof(opt);
+    //获取TCP连接的最大段大小（MSS，Maximum Segment Size）
     if (getsockopt(test->ctrl_sck, IPPROTO_TCP, TCP_MAXSEG, &opt, &len) < 0) {
         test->ctrl_sck_mss = 0;
     } else {
@@ -458,7 +457,6 @@ iperf_connect(struct iperf_test *test)
             test->ctrl_sck_mss = 0;
         }
     }
-    printf("%s: Control connection MSS %d\n", __func__, test->ctrl_sck_mss);
 
     if (test->verbose) {
 	    printf("Control connection MSS %d\n", test->ctrl_sck_mss);
@@ -586,13 +584,13 @@ iperf_run_client(struct iperf_test * test)
 	    iflush(test);
     }
 
-    /* Start the client and connect to the server */
     if (iperf_connect(test) < 0)
         goto cleanup_and_fail;
 
     /* Begin calculating CPU utilization */
     cpu_util(NULL);
-    printf("%s: test->mode %d\n", __func__, test->mode);
+    if (test->debug)
+        printf("%s: test->mode %d\n", __func__, test->mode);
     if (test->mode != SENDER)
         rcv_timeout_us = (test->settings->rcv_timeout.secs * SEC_TO_US) + test->settings->rcv_timeout.usecs;
     else
@@ -626,7 +624,8 @@ iperf_run_client(struct iperf_test * test)
             }
             timeout = &used_timeout;
         }
-
+        if (test->debug)
+            printf("%s: select test->max_fd %d\n", __func__, test->max_fd);
 	    result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
 	    if (result < 0 && errno != EINTR) {
   	        i_errno = IESELECT;
@@ -660,6 +659,7 @@ iperf_run_client(struct iperf_test * test)
 
 	    if (result > 0) {
             printf("%s: result > 0 \n", __func__);
+            //ctrl_sck是否在read_set中，通常用于检查某个 socket 是否已经“就绪”，可以进行读写操作。
 	        if (FD_ISSET(test->ctrl_sck, &read_set)) {
                 printf("%s: iperf_handle_message_client \n", __func__);
  	            if (iperf_handle_message_client(test) < 0) {

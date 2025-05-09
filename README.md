@@ -56,5 +56,5 @@ HAVE_TCP_CONGESTION 默认0
     cat /proc/sys/net/ipv4/tcp_congestion_control
 
 HAVE_TCP_USER_TIMEOUT 默认1
-    
+    设置超时时间
     

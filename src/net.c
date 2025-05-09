@@ -483,9 +483,7 @@ Nread(int fd, char *buf, size_t count, int prot)
 }
 
 
-/*
- *                      N W R I T E
- */
+
 
 int
 Nwrite(int fd, const char *buf, size_t count, int prot)
