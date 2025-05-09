@@ -1804,7 +1804,6 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
     if (test->json_output && test->debug) {
         warning("Debug output (-d) may interfere with JSON output (-J)");
     }
-    printf("enddddd");
     return 0;
 }
 
@@ -4705,51 +4704,52 @@ iperf_got_sigend(struct iperf_test *test)
 int
 iperf_create_pidfile(struct iperf_test *test)
 {
+    printf("test->pidfile %s", test->pidfile);
     if (test->pidfile) {
-	int fd;
-	char buf[8];
+	    int fd;
+	    char buf[8];
 
-	/* See if the file already exists and we can read it. */
-	fd = open(test->pidfile, O_RDONLY, 0);
-	if (fd >= 0) {
-	    if (read(fd, buf, sizeof(buf) - 1) >= 0) {
+	    /* See if the file already exists and we can read it. */
+	    fd = open(test->pidfile, O_RDONLY, 0);
+	    if (fd >= 0) {
+	        if (read(fd, buf, sizeof(buf) - 1) >= 0) {
 
-		/* We read some bytes, see if they correspond to a valid PID */
-		pid_t pid;
-		pid = atoi(buf);
-		if (pid > 0) {
+		    /* We read some bytes, see if they correspond to a valid PID */
+		        pid_t pid;
+		        pid = atoi(buf);
+		        if (pid > 0) {
 
-		    /* See if the process exists. */
-		    if (kill(pid, 0) == 0) {
+		        /* See if the process exists. */
+		            if (kill(pid, 0) == 0) {
 			/*
 			 * Make sure not to try to delete existing PID file by
 			 * scribbling over the pathname we'd use to refer to it.
 			 * Then exit with an error.
 			 */
-			free(test->pidfile);
-			test->pidfile = NULL;
-			iperf_errexit(test, "Another instance of iperf3 appears to be running");
-		    }
-		}
+			            free(test->pidfile);
+			            test->pidfile = NULL;
+			            iperf_errexit(test, "Another instance of iperf3 appears to be running");
+		            }
+		        }
+	        }
 	    }
-	}
 
 	/*
 	 * File didn't exist, we couldn't read it, or it didn't correspond to
 	 * a running process.  Try to create it.
 	 */
-	fd = open(test->pidfile, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR|S_IWUSR);
-	if (fd < 0) {
-	    return -1;
-	}
-	snprintf(buf, sizeof(buf), "%d", getpid()); /* no trailing newline */
-	if (write(fd, buf, strlen(buf)) < 0) {
-	    (void)close(fd);
-	    return -1;
-	}
-	if (close(fd) < 0) {
-	    return -1;
-	};
+	    fd = open(test->pidfile, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR|S_IWUSR);
+	    if (fd < 0) {
+	        return -1;
+	    }
+	    snprintf(buf, sizeof(buf), "%d", getpid()); /* no trailing newline */
+	    if (write(fd, buf, strlen(buf)) < 0) {
+	        (void)close(fd);
+	        return -1;
+	    }
+	    if (close(fd) < 0) {
+	        return -1;
+	    };
     }
     return 0;
 }
