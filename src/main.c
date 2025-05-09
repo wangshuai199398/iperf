@@ -112,7 +112,7 @@ iperf_run(struct iperf_test *test)
     /* Termination signals. */
     iperf_catch_sigend(sigend_handler);
     if (setjmp(sigend_jmp_buf))
-	iperf_got_sigend(test);
+	    iperf_got_sigend(test);
 
     /* Ignore SIGPIPE to simplify error handling */
     signal(SIGPIPE, SIG_IGN);
