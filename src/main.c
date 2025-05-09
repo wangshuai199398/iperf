@@ -85,6 +85,7 @@ main(int argc, char **argv)
      * increasing the priority of the process to minimise packet generation
      * delay
      */
+    printf("TEST_PROC_AFFINITY\n");
     int rc = setpriority(PRIO_PROCESS, 0, -15);
 
     if (rc < 0) {

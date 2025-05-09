@@ -94,7 +94,8 @@ timeout_connect(int s, const struct sockaddr *name, socklen_t namelen,
 		if (fcntl(s, F_SETFL, flags | O_NONBLOCK) == -1)
 			return -1;
 	}
-
+    printf("%s: timeout \n", __func__, timeout);
+    printf("%s: connect to %s\n", __func__, inet_ntoa(((struct sockaddr_in *)name)->sin_addr));
 	if ((ret = connect(s, name, namelen)) != 0 && errno == EINPROGRESS) {
 		pfd.fd = s;
 		pfd.events = POLLOUT;
@@ -129,7 +130,7 @@ create_socket(int domain, int proto, const char *local, const char *bind_dev, in
     struct addrinfo hints, *local_res = NULL, *server_res = NULL;
     int s, saved_errno;
     char portstr[6];
-
+    printf("%s: domain %d proto %d local %s bind_dev %s local_port %d server %s port %d\n", __func__, domain, proto, local, bind_dev, local_port, server, port);
     if (local) {
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = domain;
@@ -143,16 +144,16 @@ create_socket(int domain, int proto, const char *local, const char *bind_dev, in
     hints.ai_socktype = proto;
     snprintf(portstr, sizeof(portstr), "%d", port);
     if ((gerror = getaddrinfo(server, portstr, &hints, &server_res)) != 0) {
-	if (local)
-	    freeaddrinfo(local_res);
+	    if (local)
+	        freeaddrinfo(local_res);
         return -1;
     }
-
+    printf("%s: socket ai_family %d\n", __func__, server_res->ai_family);
     s = socket(server_res->ai_family, proto, 0);
     if (s < 0) {
-	if (local)
-	    freeaddrinfo(local_res);
-	freeaddrinfo(server_res);
+	    if (local)
+	        freeaddrinfo(local_res);
+	    freeaddrinfo(server_res);
         return -1;
     }
 
@@ -178,46 +179,46 @@ create_socket(int domain, int proto, const char *local, const char *bind_dev, in
             lcladdr = (struct sockaddr_in *)local_res->ai_addr;
             lcladdr->sin_port = htons(local_port);
         }
-
+        printf("%s: bind \n", __func__);
         if (bind(s, (struct sockaddr *) local_res->ai_addr, local_res->ai_addrlen) < 0) {
-	    saved_errno = errno;
-	    close(s);
-	    freeaddrinfo(local_res);
-	    freeaddrinfo(server_res);
-	    errno = saved_errno;
+	        saved_errno = errno;
+	        close(s);
+	        freeaddrinfo(local_res);
+	        freeaddrinfo(server_res);
+	        errno = saved_errno;
             return -1;
-	}
+	    }
         freeaddrinfo(local_res);
     }
     /* No local name, but --cport given */
     else if (local_port) {
-	size_t addrlen;
-	struct sockaddr_storage lcl;
+	    size_t addrlen;
+	    struct sockaddr_storage lcl;
 
-	/* IPv4 */
-	if (server_res->ai_family == AF_INET) {
-	    struct sockaddr_in *lcladdr = (struct sockaddr_in *) &lcl;
-	    lcladdr->sin_family = AF_INET;
-	    lcladdr->sin_port = htons(local_port);
-	    lcladdr->sin_addr.s_addr = INADDR_ANY;
-	    addrlen = sizeof(struct sockaddr_in);
-	}
-	/* IPv6 */
-	else if (server_res->ai_family == AF_INET6) {
-	    struct sockaddr_in6 *lcladdr = (struct sockaddr_in6 *) &lcl;
-	    lcladdr->sin6_family = AF_INET6;
-	    lcladdr->sin6_port = htons(local_port);
-	    lcladdr->sin6_addr = in6addr_any;
-	    addrlen = sizeof(struct sockaddr_in6);
-	}
-	/* Unknown protocol */
-	else {
-	    close(s);
-	    freeaddrinfo(server_res);
-	    errno = EAFNOSUPPORT;
-            return -1;
-	}
-
+	    /* IPv4 */
+	    if (server_res->ai_family == AF_INET) {
+	        struct sockaddr_in *lcladdr = (struct sockaddr_in *) &lcl;
+	        lcladdr->sin_family = AF_INET;
+	        lcladdr->sin_port = htons(local_port);
+	        lcladdr->sin_addr.s_addr = INADDR_ANY;
+	        addrlen = sizeof(struct sockaddr_in);
+	    }
+	    /* IPv6 */
+	    else if (server_res->ai_family == AF_INET6) {
+	        struct sockaddr_in6 *lcladdr = (struct sockaddr_in6 *) &lcl;
+	        lcladdr->sin6_family = AF_INET6;
+	        lcladdr->sin6_port = htons(local_port);
+	        lcladdr->sin6_addr = in6addr_any;
+	        addrlen = sizeof(struct sockaddr_in6);
+	    }
+	    /* Unknown protocol */
+	    else {
+	        close(s);
+	        freeaddrinfo(server_res);
+	        errno = EAFNOSUPPORT;
+                return -1;
+	    }
+        printf("%s: local_port bind \n", __func__);
         if (bind(s, (struct sockaddr *) &lcl, addrlen) < 0) {
 	    saved_errno = errno;
 	    close(s);
@@ -244,10 +245,10 @@ netdial(int domain, int proto, const char *local, const char *bind_dev, int loca
     }
 
     if (timeout_connect(s, (struct sockaddr *) server_res->ai_addr, server_res->ai_addrlen, timeout) < 0 && errno != EINPROGRESS) {
-	saved_errno = errno;
-	close(s);
-	freeaddrinfo(server_res);
-	errno = saved_errno;
+	    saved_errno = errno;
+	    close(s);
+	    freeaddrinfo(server_res);
+	    errno = saved_errno;
         return -1;
     }
 
@@ -464,27 +465,28 @@ Nwrite(int fd, const char *buf, size_t count, int prot)
     register size_t nleft = count;
 
     while (nleft > 0) {
-	r = write(fd, buf, nleft);
-	if (r < 0) {
-	    switch (errno) {
-		case EINTR:
-		case EAGAIN:
+        printf("%s: Nwrite buf %s nleft %zu\n", __func__, buf, nleft);
+	    r = write(fd, buf, nleft);
+	    if (r < 0) {
+	        switch (errno) {
+		    case EINTR:
+		    case EAGAIN:
 #if (EAGAIN != EWOULDBLOCK)
                     /* XXX EWOULDBLOCK can't happen without non-blocking sockets */
-		case EWOULDBLOCK:
+		    case EWOULDBLOCK:
 #endif
-		return count - nleft;
+		        return count - nleft;
 
-		case ENOBUFS:
-		return NET_SOFTERROR;
+		    case ENOBUFS:
+		        return NET_SOFTERROR;
 
-		default:
-		return NET_HARDERROR;
-	    }
-	} else if (r == 0)
-	    return NET_SOFTERROR;
-	nleft -= r;
-	buf += r;
+		    default:
+		        return NET_HARDERROR;
+	        }
+	    } else if (r == 0)
+	        return NET_SOFTERROR;
+	    nleft -= r;
+	    buf += r;
     }
     return count;
 }

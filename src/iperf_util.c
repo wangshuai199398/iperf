@@ -88,7 +88,8 @@ void fill_with_repeating_pattern(void *out, size_t outsize)
     int counter = 0;
     char *buf = (char *)out;
 
-    if (!outsize) return;
+    if (!outsize) 
+        return;
 
     for (i = 0; i < outsize; i++) {
         buf[i] = (char)('0' + counter);
@@ -202,7 +203,7 @@ cpu_util(double pcpu[3])
     if (pcpu == NULL) {
         iperf_time_now(&last);
         clast = clock();
-	getrusage(RUSAGE_SELF, &rlast);
+	    getrusage(RUSAGE_SELF, &rlast);
         return;
     }
 

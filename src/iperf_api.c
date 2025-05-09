@@ -1549,13 +1549,13 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 #endif /* HAVE_TCP_CONGESTION */
 		break;
 	    case 'd':
-		test->debug = 1;
-                test->debug_level = DEBUG_LEVEL_MAX;
-                if (optarg) {
-                    test->debug_level = atoi(optarg);
-                    if (test->debug_level < 0)
-                        test->debug_level = DEBUG_LEVEL_MAX;
-                }
+		    test->debug = 1;
+            test->debug_level = DEBUG_LEVEL_MAX;
+            if (optarg) {
+                test->debug_level = atoi(optarg);
+                if (test->debug_level < 0)
+                    test->debug_level = DEBUG_LEVEL_MAX;
+            }
 		break;
 	    case 'I':
 		test->pidfile = strdup(optarg);
@@ -1934,36 +1934,38 @@ iperf_send_mt(struct iperf_stream *sp)
     no_throttle_check = test->settings->rate != 0 && test->settings->burst == 0;
 
     for (; multisend > 0; --multisend) {
-	if (no_throttle_check)
+	    if (no_throttle_check)
 	    iperf_time_now(&now);
-	streams_active = 0;
-	{
-	    if (sp->green_light && sp->sender) {
+	    streams_active = 0;
+	    {
+	        if (sp->green_light && sp->sender) {
                 // XXX If we hit one of these ending conditions maybe
                 // want to stop even trying to send something?
                 if (multisend > 1 && test->settings->bytes != 0 && test->bytes_sent >= test->settings->bytes)
                     break;
                 if (multisend > 1 && test->settings->blocks != 0 && test->blocks_sent >= test->settings->blocks)
                     break;
-		if ((r = sp->snd(sp)) < 0) {
-		    if (r == NET_SOFTERROR)
-			break;
-		    i_errno = IESTREAMWRITE;
-		    return r;
-		}
-		streams_active = 1;
-		test->bytes_sent += r;
-		if (!sp->pending_size)
-		    ++test->blocks_sent;
+                if (test->debug)
+                    printf("%s: sp->snd\n");
+		        if ((r = sp->snd(sp)) < 0) {
+		            if (r == NET_SOFTERROR)
+			            break;
+		                i_errno = IESTREAMWRITE;
+		                return r;
+		        }
+		        streams_active = 1;
+		        test->bytes_sent += r;
+		        if (!sp->pending_size)
+		            ++test->blocks_sent;
                 if (no_throttle_check)
-		    iperf_check_throttle(sp, &now);
+		            iperf_check_throttle(sp, &now);
+	        }
 	    }
-	}
-	if (!streams_active)
-	    break;
+	    if (!streams_active)
+	        break;
     }
     if (!no_throttle_check) {   /* Throttle check if was not checked for each send */
-	iperf_time_now(&now);
+	    iperf_time_now(&now);
         if (sp->sender)
             iperf_check_throttle(sp, &now);
     }
@@ -4327,6 +4329,9 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
     int ret = 0;
 
     char template[1024];
+    if test->debug {
+        printf("%s: tmp_template: %s\n", __func__, test->tmp_template);
+    }
     if (test->tmp_template) {
         snprintf(template, sizeof(template) / sizeof(char), "%s", test->tmp_template);
     } else {
@@ -4405,22 +4410,25 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
     sp->rcv = test->protocol->recv;
 
     if (test->diskfile_name != (char*) 0) {
-	sp->diskfile_fd = open(test->diskfile_name, sender ? O_RDONLY : (O_WRONLY|O_CREAT|O_TRUNC), S_IRUSR|S_IWUSR);
-	if (sp->diskfile_fd == -1) {
-	    i_errno = IEFILE;
+	    sp->diskfile_fd = open(test->diskfile_name, sender ? O_RDONLY : (O_WRONLY|O_CREAT|O_TRUNC), S_IRUSR|S_IWUSR);
+	    if (sp->diskfile_fd == -1) {
+	        i_errno = IEFILE;
             munmap(sp->buffer, sp->test->settings->blksize);
             free(sp->result);
             free(sp);
-	    return NULL;
-	}
+	        return NULL;
+	    }
         sp->snd2 = sp->snd;
-	sp->snd = diskfile_send;
-	sp->rcv2 = sp->rcv;
-	sp->rcv = diskfile_recv;
+	    sp->snd = diskfile_send;
+	    sp->rcv2 = sp->rcv;
+	    sp->rcv = diskfile_recv;
     } else
         sp->diskfile_fd = -1;
 
     /* Initialize stream */
+    if test->debug {
+        printf("%s: test->repeating_payload %d\n", __func__, test->repeating_payload);
+    }
     if (test->repeating_payload)
         fill_with_repeating_pattern(sp->buffer, test->settings->blksize);
     else
@@ -4445,18 +4453,20 @@ iperf_common_sockopts(struct iperf_test *test, int s)
     int opt;
 
     /* Set IP TOS */
+    if (test->debug) {
+        printf("%s: IPV6_TCLASS iperf_common_sockopts: %d\n", __func__, IPV6_TCLASS, test->settings->tos);
     if ((opt = test->settings->tos)) {
-	if (getsockdomain(s) == AF_INET6) {
+	    if (getsockdomain(s) == AF_INET6) {
 #ifdef IPV6_TCLASS
-	    if (setsockopt(s, IPPROTO_IPV6, IPV6_TCLASS, &opt, sizeof(opt)) < 0) {
+	        if (setsockopt(s, IPPROTO_IPV6, IPV6_TCLASS, &opt, sizeof(opt)) < 0) {
                 i_errno = IESETCOS;
                 return -1;
             }
 
 	    /* if the control connection was established with a mapped v4 address
 	       then set IP_TOS on v6 stream socket as well */
-	    if (iperf_get_mapped_v4(test)) {
-		if (setsockopt(s, IPPROTO_IP, IP_TOS, &opt, sizeof(opt)) < 0) {
+	        if (iperf_get_mapped_v4(test)) {
+		        if (setsockopt(s, IPPROTO_IP, IP_TOS, &opt, sizeof(opt)) < 0) {
                     /* ignore any failure of v4 TOS in IPv6 case */
                 }
             }
@@ -4468,6 +4478,9 @@ iperf_common_sockopts(struct iperf_test *test, int s)
             if (setsockopt(s, IPPROTO_IP, IP_TOS, &opt, sizeof(opt)) < 0) {
                 i_errno = IESETTOS;
                 return -1;
+            }
+            if (test->debug) {
+                printf("%s: opt: %d\n", __func__, opt);
             }
         }
     }
