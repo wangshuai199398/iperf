@@ -115,9 +115,6 @@ iperf_server_listen(struct iperf_test *test)
 	        return -1;
 	    }
     }
-    if (test->debug) {
-        printf("%s: domain %d bind_address %s bind_dev %s server_port %d\n", __func__, test->settings->domain, test->bind_address, test->bind_dev, test->server_port);
-    }
 
     if (!test->json_output) {
         if (test->server_last_run_rc != 2)
@@ -135,10 +132,10 @@ iperf_server_listen(struct iperf_test *test)
     FD_ZERO(&test->write_set);
     FD_SET(test->listener, &test->read_set);
     
-    if (test->debug)
-        printf("%s: listener fd %d test->max_fd %d\n", __func__, test->listener, test->max_fd);
     if (test->listener > test->max_fd)
         test->max_fd = test->listener;
+    if (test->debug)
+        printf("%s: listener fd %d test->max_fd %d\n", __func__, test->listener, test->max_fd);
 
     return 0;
 }
@@ -582,7 +579,7 @@ iperf_run_server(struct iperf_test *test)
         // Ensure select() will timeout to allow handling error cases that require server restart
         if (test->state == IPERF_START) {       // In idle mode server may need to restart
             if (test->debug)
-                printf("%s: in idle state, timeout %p\n", __func__, timeout);
+                printf("%s: in IPERF_START state, timeout %p\n", __func__, timeout);
             if (timeout == NULL && test->settings->idle_timeout > 0) {
                 used_timeout.tv_sec = test->settings->idle_timeout;
                 used_timeout.tv_usec = 0;
@@ -607,9 +604,6 @@ iperf_run_server(struct iperf_test *test)
             }
             timeout = &used_timeout;
         }
-
-        if (test->debug)
-            printf("%s: select max_fd %d\n", __func__, test->max_fd);
 
         result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
         if (result < 0 && errno != EINTR) {
