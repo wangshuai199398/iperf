@@ -113,16 +113,18 @@ iperf_server_listen(struct iperf_test *test)
 	}
     }
 
+    if (test->debug)
+        printf("iperf_server_listen: %d\n", test->listener);
     if (!test->json_output) {
         if (test->server_last_run_rc != 2)
             test->server_test_number +=1;
         if (test->debug || test->server_last_run_rc != 2) {
-	    iperf_printf(test, "-----------------------------------------------------------\n");
-	    iperf_printf(test, "Server listening on %d (test #%d)\n", test->server_port, test->server_test_number);
-	    iperf_printf(test, "-----------------------------------------------------------\n");
-	    if (test->forceflush)
-	        iflush(test);
-        }
+	        iperf_printf(test, "-----------------------------------------------------------\n");
+	        iperf_printf(test, "Server listening on %d (test #%d)\n", test->server_port, test->server_test_number);
+	        iperf_printf(test, "-----------------------------------------------------------\n");
+	        if (test->forceflush)
+	            iflush(test);
+         }
     }
 
     FD_ZERO(&test->read_set);
