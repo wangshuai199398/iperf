@@ -458,7 +458,7 @@ iperf_tcp_connect(struct iperf_test *test)
     
     if (test->debug) {
         printf("%s: sndbuf_actual %d optlen %d\n", __func__, sndbuf_actual, optlen);
-	    printf("SNDBUF is %u, expecting %u\n", sndbuf_actual, test->settings->socket_bufsize);
+	    printf("SNDBUF is %u, socket_bufsize %u\n", sndbuf_actual, test->settings->socket_bufsize);
     }
     if (test->settings->socket_bufsize && test->settings->socket_bufsize > sndbuf_actual) {
 	    i_errno = IESETBUF2;
@@ -477,7 +477,7 @@ iperf_tcp_connect(struct iperf_test *test)
     }
     if (test->debug) {
         printf("%s: rcvbuf_actual %d optlen %d\n", __func__, rcvbuf_actual, optlen);
-	    printf("RCVBUF is %u, expecting %u\n", rcvbuf_actual, test->settings->socket_bufsize);
+	    printf("RCVBUF is %u, socket_bufsize %u\n", rcvbuf_actual, test->settings->socket_bufsize);
     }
     if (test->settings->socket_bufsize && test->settings->socket_bufsize > rcvbuf_actual) {
 	    i_errno = IESETBUF2;
@@ -501,7 +501,7 @@ iperf_tcp_connect(struct iperf_test *test)
         }
     }
     if (test->debug) {
-        printf("%s: HAVE_FLOWLABEL %d HAVE_SO_MAX_PACING_RATE %d\n", __func__, HAVE_FLOWLABEL, HAVE_SO_MAX_PACING_RATE);
+        printf("%s: HAVE_FLOWLABEL %d HAVE_SO_MAX_PACING_RATE %d test->settings->flowlabel %d\n", __func__, HAVE_FLOWLABEL, HAVE_SO_MAX_PACING_RATE, test->settings->flowlabel);
     }
 #if defined(HAVE_FLOWLABEL)
     if (test->settings->flowlabel) {
@@ -574,7 +574,7 @@ iperf_tcp_connect(struct iperf_test *test)
 
     /* Set common socket options */
     iperf_common_sockopts(test, s);
-     if (test->debug) {
+    if (test->debug) {
 		printf("%s: ->connect\n", __func__);
     }
     if (connect(s, (struct sockaddr *) server_res->ai_addr, server_res->ai_addrlen) < 0 && errno != EINPROGRESS) {

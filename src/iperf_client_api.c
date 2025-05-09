@@ -104,8 +104,8 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 test->bind_port += test->num_streams;
         }
         if (test->debug)
-            printf("%s: test->protocol->connect iperf_tcp_connect orig_bind_port %d\n", __func__, orig_bind_port);
-        s = test->protocol->connect(test);
+            printf("%s: test->protocol->connect orig_bind_port %d\n", __func__, orig_bind_port);
+        s = test->protocol->connect(test);//iperf_tcp_connect
         test->bind_port = orig_bind_port;
         if (s < 0)
             return -1;
@@ -141,7 +141,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 }
 
 	    	    if (test->debug) {
-	    	        printf("Congestion algorithm is %s\n", test->congestion_used);
+	    	        printf("Congestion algorithm is %s\n", test->congestion_used);//
 	    	    }
 	        }
 	    }
