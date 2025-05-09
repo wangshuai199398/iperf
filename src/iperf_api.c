@@ -4633,7 +4633,7 @@ diskfile_send(struct iperf_stream *sp)
 
     r = sp->snd2(sp);
     if (r < 0) {
-	return r;
+	    return r;
     }
     /*
      * Compute how much data is in the buffer but didn't get sent.
@@ -4643,11 +4643,11 @@ diskfile_send(struct iperf_stream *sp)
      */
     sp->diskfile_left = buffer_left - r;
     if (sp->diskfile_left && sp->diskfile_left < sp->test->settings->blksize) {
-	memcpy(sp->buffer,
+	    memcpy(sp->buffer,
 	       sp->buffer + (sp->test->settings->blksize - sp->diskfile_left),
 	       sp->diskfile_left);
-	if (sp->test->debug)
-	    printf("Shifting %d bytes by %d\n", sp->diskfile_left, (sp->test->settings->blksize - sp->diskfile_left));
+	    if (sp->test->debug)
+	        printf("Shifting %d bytes by %d\n", sp->diskfile_left, (sp->test->settings->blksize - sp->diskfile_left));
     }
     return r;
 }
