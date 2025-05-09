@@ -92,7 +92,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
     struct iperf_stream *sp;
 
     int orig_bind_port = test->bind_port;
-    if test->debug
+    if (test->debug)
         printf("%s: test->bind_port %d test->num_streams %d\n", __func__, test->bind_port, test->num_streams);
     for (i = 0; i < test->num_streams; ++i) {
         test->bind_port = orig_bind_port;
@@ -102,7 +102,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
             if (!sender && test->mode == BIDIRECTIONAL)
                 test->bind_port += test->num_streams;
         }
-        if test->debug
+        if (test->debug)
             printf("%s: test->protocol->connect iperf_tcp_connect orig_bind_port %d\n", __func__, orig_bind_port);
         s = test->protocol->connect(test);
         test->bind_port = orig_bind_port;
