@@ -86,7 +86,8 @@ iperf_create_streams(struct iperf_test *test, int sender)
     }
     int i, s;
 #if defined(HAVE_TCP_CONGESTION)
-    printf("%s: HAVE_TCP_CONGESTION %d\n", __func__, HAVE_TCP_CONGESTION);
+    if (test->debug)
+        printf("%s: HAVE_TCP_CONGESTION %d\n", __func__, HAVE_TCP_CONGESTION);
     int saved_errno;
 #endif /* HAVE_TCP_CONGESTION */
     struct iperf_stream *sp;

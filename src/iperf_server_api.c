@@ -506,6 +506,8 @@ iperf_run_server(struct iperf_test *test)
     int send_streams_accepted, rec_streams_accepted;
     int streams_to_send = 0, streams_to_rec = 0;
 #if defined(HAVE_TCP_CONGESTION)
+    if (test->debug)
+        printf("%s: HAVE_TCP_CONGESTION %d\n", __func__, HAVE_TCP_CONGESTION);
     int saved_errno;
 #endif /* HAVE_TCP_CONGESTION */
     fd_set read_set, write_set;

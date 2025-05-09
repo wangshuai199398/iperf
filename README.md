@@ -45,7 +45,7 @@ cd /src
 
 宏定义
 ---------
-HAVE_TCP_CONGESTION 默认0
+HAVE_TCP_CONGESTION 服务端0
     当前系统的TCP协议栈是否支持设置或获取TCP 拥塞控制算法
     TCP 拥塞控制算法是 TCP 协议中用于控制网络拥塞的核心机制，常见的算法包括：
 	•cubic（默认，Linux 上常用）
@@ -54,6 +54,8 @@ HAVE_TCP_CONGESTION 默认0
 	•westwood 等
     查看当前使用的算法：
     cat /proc/sys/net/ipv4/tcp_congestion_control
+
+HAVE_TCP_CONGESTION 客户端1
 
 HAVE_TCP_USER_TIMEOUT 默认1
     设置超时时间
