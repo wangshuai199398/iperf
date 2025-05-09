@@ -378,8 +378,8 @@ iperf_tcp_connect(struct iperf_test *test)
     int saved_errno;
     int rcvbuf_actual, sndbuf_actual;
     if (test->debug) {
-        printf("%s: create_socket %d\n", __func__);
-        printf("%s: domain %d test->bind_address %d test->bind_dev %s test->bind_port %d test->server_hostname %s test->server_port %d\n", __func__, test->settings->domain,
+        printf("%s: create_socket\n", __func__);
+        printf("%s: domain %d test->bind_address %s test->bind_dev %s test->bind_port %d test->server_hostname %s test->server_port %d\n", __func__, test->settings->domain,
                               test->bind_address, test->bind_dev, test->bind_port, test->server_hostname, test->server_port);
     }
     s = create_socket(test->settings->domain, SOCK_STREAM, test->bind_address, test->bind_dev, test->bind_port, test->server_hostname, test->server_port, &server_res);
@@ -575,7 +575,7 @@ iperf_tcp_connect(struct iperf_test *test)
     /* Set common socket options */
     iperf_common_sockopts(test, s);
      if (test->debug) {
-		printf("%s: ->connect\n");
+		printf("%s: ->connect\n", __func__);
     }
     if (connect(s, (struct sockaddr *) server_res->ai_addr, server_res->ai_addrlen) < 0 && errno != EINPROGRESS) {
 	    saved_errno = errno;
