@@ -1804,7 +1804,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
     if (test->json_output && test->debug) {
         warning("Debug output (-d) may interfere with JSON output (-J)");
     }
-
+    printf("enddddd");
     return 0;
 }
 
