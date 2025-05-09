@@ -2170,8 +2170,9 @@ send_parameters(struct iperf_test *test)
 	        cJSON_AddTrueToObject(j, "tcp");
 	    else if (test->protocol->id == Pudp)
 	        cJSON_AddTrueToObject(j, "udp");
-        else if (test->protocol->id == Psctp)
+        else if (test->protocol->id == Psctp) {
             cJSON_AddTrueToObject(j, "sctp");
+        }
 	    cJSON_AddNumberToObject(j, "omit", test->omit);
 	    if (test->server_affinity != -1)
 	        cJSON_AddNumberToObject(j, "server_affinity", test->server_affinity);
@@ -2220,16 +2221,20 @@ send_parameters(struct iperf_test *test)
 	    if (test->zerocopy)
 	        cJSON_AddNumberToObject(j, "zerocopy", test->zerocopy);
 #if defined(HAVE_DONT_FRAGMENT)
-        if (test->debug)
+        if (test->debug) {
             printf("send_parameters: dont_fragment = %d\n", test->settings->dont_fragment);
+        }
+
 	    if (test->settings->dont_fragment)
 	        cJSON_AddNumberToObject(j, "dont_fragment", test->settings->dont_fragment);
 #endif /* HAVE_DONT_FRAGMENT */
 #if defined(HAVE_SSL)
-        if (test->debug)
+        if (test->debug) {
             printf("send_parameters: client_username = %s\n", test->settings->client_username);
+        }
+
 	    /* Send authentication parameters */
-	    if (test->settings->client_username && test->settings->client_password && test->settings->client_rsa_pubkey){
+	    if (test->settings->client_username && test->settings->client_password && test->settings->client_rsa_pubkey) {
 	        int rc = encode_auth_setting(test->settings->client_username, test->settings->client_password, test->settings->client_rsa_pubkey, &test->settings->authtoken);
 
 	        if (rc) {
