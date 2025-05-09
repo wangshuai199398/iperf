@@ -67,9 +67,11 @@ main(int argc, char **argv)
      * know how to check this on GCC. GCC on CentOS 7 / RHEL 7 is the
      * targeted use case for these check.
      */
-    printf("HAVE_STDATOMIC_H %d, __GNUC__ %d\n", HAVE_STDATOMIC_H, __GNUC__);
+    
 #ifndef HAVE_STDATOMIC_H
+    printf("HAVE_STDATOMIC_H %d, __GNUC__ %d\n", HAVE_STDATOMIC_H, __GNUC__);
 #ifdef __GNUC__
+    printf("ffffffffffffffff\n");
     if (! __atomic_always_lock_free (sizeof (u_int64_t), 0)) {
 #endif // __GNUC__
         fprintf(stderr, "Warning: Cannot guarantee lock-free operation with 64-bit data types\n");
@@ -77,44 +79,6 @@ main(int argc, char **argv)
     }
 #endif // __GNUC__
 #endif // HAVE_STDATOMIC_H
-
-    // XXX: Setting the process affinity requires root on most systems.
-    //      Is this a feature we really need?
-#ifndef TEST_PROC_AFFINITY
-    printf(" not TEST_PROC_AFFINITY\n");
-#endif
-#ifdef TEST_PROC_AFFINITY
-    /* didn't seem to work.... */
-    /*
-     * increasing the priority of the process to minimise packet generation
-     * delay
-     */
-    printf("TEST_PROC_AFFINITY\n");
-    int rc = setpriority(PRIO_PROCESS, 0, -15);
-
-    if (rc < 0) {
-        perror("setpriority:");
-        fprintf(stderr, "setting priority to valid level\n");
-        rc = setpriority(PRIO_PROCESS, 0, 0);
-    }
-
-    /* setting the affinity of the process  */
-    cpu_set_t cpu_set;
-    int affinity = -1;
-    int ncores = 1;
-
-    sched_getaffinity(0, sizeof(cpu_set_t), &cpu_set);
-    if (errno)
-        perror("couldn't get affinity:");
-
-    if ((ncores = sysconf(_SC_NPROCESSORS_CONF)) <= 0)
-        err("sysconf: couldn't get _SC_NPROCESSORS_CONF");
-
-    CPU_ZERO(&cpu_set);
-    CPU_SET(affinity, &cpu_set);
-    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpu_set) != 0)
-        err("couldn't change CPU affinity");
-#endif
 
     test = iperf_new_test();
     if (!test)
