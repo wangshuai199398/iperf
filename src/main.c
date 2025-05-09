@@ -50,7 +50,7 @@
 #include "units.h"
 
 
-static int run(struct iperf_test *test);
+static int iperf_run(struct iperf_test *test);
 
 
 /**************************************************************************/
@@ -69,13 +69,9 @@ main(int argc, char **argv)
      */
     
 #ifndef HAVE_STDATOMIC_H
-    printf("HAVE_STDATOMIC_H %d, __GNUC__ %d\n", HAVE_STDATOMIC_H, __GNUC__);
 #ifdef __GNUC__
-    printf("ffffffffffffffff\n");
     if (! __atomic_always_lock_free (sizeof (u_int64_t), 0)) {
-#endif // __GNUC__
         fprintf(stderr, "Warning: Cannot guarantee lock-free operation with 64-bit data types\n");
-#ifdef __GNUC__
     }
 #endif // __GNUC__
 #endif // HAVE_STDATOMIC_H
@@ -92,7 +88,7 @@ main(int argc, char **argv)
         exit(1);
     }
 
-    if (run(test) < 0)
+    if (iperf_run(test) < 0)
         iperf_errexit(test, "error - %s", iperf_strerror(i_errno));
 
     iperf_free_test(test);
@@ -111,7 +107,7 @@ sigend_handler(int sig)
 
 /**************************************************************************/
 static int
-run(struct iperf_test *test)
+iperf_run(struct iperf_test *test)
 {
     /* Termination signals. */
     iperf_catch_sigend(sigend_handler);
