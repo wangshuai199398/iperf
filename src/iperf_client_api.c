@@ -135,8 +135,10 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 // Set actual used congestion alg, or set to unknown if could not get it
                 if (rc < 0)
                     test->congestion_used = strdup("unknown");
-                else
+                else {
                     test->congestion_used = strdup(ca);
+                }
+
 	    	    if (test->debug) {
 	    	        printf("Congestion algorithm is %s\n", test->congestion_used);
 	    	    }
@@ -324,9 +326,10 @@ iperf_handle_message_client(struct iperf_test *test)
                 return -1;
             if (create_client_omit_timer(test) < 0)
                 return -1;
-	        if (test->mode)
-		        if (iperf_create_send_timers(test) < 0)
+	        if (test->mode) {
+                if (iperf_create_send_timers(test) < 0)
 		            return -1;
+            }
             break;
         case TEST_RUNNING:
             break;
