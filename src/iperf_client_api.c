@@ -400,11 +400,14 @@ iperf_connect(struct iperf_test *test)
     FD_ZERO(&test->write_set);
 
     make_cookie(test->cookie);
-    printf("%s: test->ctrl_sck %d\n", __func__, test->ctrl_sck);
+    if (test->debug)
+        printf("%s: test->ctrl_sck %d\n", __func__, test->ctrl_sck);
     /* Create and connect the control channel */
     if (test->ctrl_sck < 0)
-	// Create the control channel using an ephemeral port
+	    // Create the control channel using an ephemeral port
 	    test->ctrl_sck = netdial(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, 0, test->server_hostname, test->server_port, test->settings->connect_timeout);
+    if (test->debug)
+        printf("%s: test->ctrl_sck %d\n", __func__, test->ctrl_sck);
     if (test->ctrl_sck < 0) {
         i_errno = IECONNECT;
         return -1;
