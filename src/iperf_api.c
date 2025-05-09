@@ -4453,7 +4453,7 @@ iperf_common_sockopts(struct iperf_test *test, int s)
     int opt;
 
     /* Set IP TOS */
-    if (test->debug) {
+    if (test->debug)
         printf("%s: IPV6_TCLASS %d iperf_common_sockopts: %d\n", __func__, IPV6_TCLASS, test->settings->tos);
     if ((opt = test->settings->tos)) {
 	    if (getsockdomain(s) == AF_INET6) {
