@@ -324,8 +324,10 @@ iperf_handle_message_client(struct iperf_test *test)
                 return -1;
             if (create_client_timers(test) < 0)
                 return -1;
-            if (create_client_omit_timer(test) < 0)
+
+            if (create_client_omit_timer(test) < 0) {
                 return -1;
+            }
 	        if (test->mode) {
                 if (iperf_create_send_timers(test) < 0)
 		            return -1;
