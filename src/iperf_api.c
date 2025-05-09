@@ -1946,7 +1946,7 @@ iperf_send_mt(struct iperf_stream *sp)
                 if (multisend > 1 && test->settings->blocks != 0 && test->blocks_sent >= test->settings->blocks)
                     break;
                 if (test->debug)
-                    printf("%s: sp->snd\n");
+                    printf("%s: sp->snd\n", __func__);
 		        if ((r = sp->snd(sp)) < 0) {
 		            if (r == NET_SOFTERROR)
 			            break;
@@ -4329,7 +4329,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
     int ret = 0;
 
     char template[1024];
-    if test->debug {
+    if (test->debug) {
         printf("%s: tmp_template: %s\n", __func__, test->tmp_template);
     }
     if (test->tmp_template) {
@@ -4426,7 +4426,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         sp->diskfile_fd = -1;
 
     /* Initialize stream */
-    if test->debug {
+    if (test->debug) {
         printf("%s: test->repeating_payload %d\n", __func__, test->repeating_payload);
     }
     if (test->repeating_payload)

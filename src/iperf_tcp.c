@@ -121,7 +121,7 @@ iperf_tcp_accept(struct iperf_test * test)
     struct sockaddr_storage addr;
 
     len = sizeof(addr);
-    if test->debug {
+    if (test->debug) {
         printf("%s: accept %d\n", __func__, test->listener);
     }
     if ((s = accept(test->listener, (struct sockaddr *) &addr, &len)) < 0) {

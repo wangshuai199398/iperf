@@ -164,6 +164,8 @@ file for complete information.
 
 uso
 ---------
+./configure; make
+
 cd /src
 
 ./iperf3 -s -p 9999 -U 1
