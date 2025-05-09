@@ -132,7 +132,7 @@ iperf_server_listen(struct iperf_test *test)
     FD_ZERO(&test->write_set);
     FD_SET(test->listener, &test->read_set);
     
-    if (debug)
+    if (test->debug)
         printf("iperf_server_listen: listener fd %d test->max_fd %d\n", test->listener, test->max_fd);
     if (test->listener > test->max_fd)
         test->max_fd = test->listener;
@@ -223,7 +223,7 @@ iperf_handle_message_server(struct iperf_test *test)
     int rval;
     struct iperf_stream *sp;
 
-    if (debug)
+    if (test->debug)
         printf("%s: Nread test->ctrl_sck %d\n", __func__, test->ctrl_sck);
     if ((rval = Nread(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp)) <= 0) {
         if (rval == 0) {
@@ -577,7 +577,7 @@ iperf_run_server(struct iperf_test *test)
 
         // Ensure select() will timeout to allow handling error cases that require server restart
         if (test->state == IPERF_START) {       // In idle mode server may need to restart
-            if (debug)
+            if (test->debug)
                 printf("%s: in idle state, timeout %p\n", __func__, timeout);
             if (timeout == NULL && test->settings->idle_timeout > 0) {
                 used_timeout.tv_sec = test->settings->idle_timeout;
@@ -585,7 +585,7 @@ iperf_run_server(struct iperf_test *test)
                 timeout = &used_timeout;
             }
         } else if (test->mode != SENDER) {     // In non-reverse active mode server ensures data is received
-            if (debug)
+            if (test->debug)
                 printf("%s: test->mode %d in active state, timeout %p\n", __func__, test->mode, timeout);
             timeout_us = -1;
             if (timeout != NULL) {
@@ -604,7 +604,7 @@ iperf_run_server(struct iperf_test *test)
             timeout = &used_timeout;
         }
 
-        if (debug)
+        if (test->debug)
             printf("%s: select max_fd %d\n", __func__, test->max_fd);
 
         result = select(test->max_fd + 1, &read_set, &write_set, NULL);
