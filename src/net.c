@@ -94,7 +94,7 @@ timeout_connect(int s, const struct sockaddr *name, socklen_t namelen,
 		if (fcntl(s, F_SETFL, flags | O_NONBLOCK) == -1)
 			return -1;
 	}
-    printf("%s: timeout \n", __func__, timeout);
+    printf("%s: timeout %d\n", __func__, timeout);
     printf("%s: connect to %s\n", __func__, inet_ntoa(((struct sockaddr_in *)name)->sin_addr));
 	if ((ret = connect(s, name, namelen)) != 0 && errno == EINPROGRESS) {
 		pfd.fd = s;

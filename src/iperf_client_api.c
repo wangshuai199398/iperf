@@ -644,7 +644,7 @@ iperf_run_client(struct iperf_test * test)
 
         /* See if the test is making progress */
         if (test->blocks_received > last_receive_blocks) {
-            printf("%s: test->blocks_received %llu\n", __func__, test->blocks_received);
+            printf("%s: test->blocks_received %lu\n", __func__, test->blocks_received);
             last_receive_blocks = test->blocks_received;
             last_receive_time = now;
         }
