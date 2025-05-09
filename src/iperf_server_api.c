@@ -250,12 +250,12 @@ iperf_handle_message_server(struct iperf_test *test)
                 close(sp->socket);
             }
             test->reporter_callback(test);
-	    if (iperf_set_send_state(test, EXCHANGE_RESULTS) != 0)
-            return -1;
-        if (iperf_exchange_results(test) < 0)
-            return -1;
-	    if (iperf_set_send_state(test, DISPLAY_RESULTS) != 0)
-            return -1;
+	        if (iperf_set_send_state(test, EXCHANGE_RESULTS) != 0)
+                return -1;
+            if (iperf_exchange_results(test) < 0)
+                return -1;
+	        if (iperf_set_send_state(test, DISPLAY_RESULTS) != 0)
+                return -1;
             if (test->on_test_finish)
                 test->on_test_finish(test);
             break;
@@ -607,7 +607,7 @@ iperf_run_server(struct iperf_test *test)
         if (test->debug)
             printf("%s: select max_fd %d\n", __func__, test->max_fd);
 
-        result = select(test->max_fd + 1, &read_set, &write_set, NULL);
+        result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
         if (result < 0 && errno != EINTR) {
             cleanup_server(test);
             i_errno = IESELECT;
