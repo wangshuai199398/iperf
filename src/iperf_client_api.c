@@ -325,9 +325,9 @@ iperf_handle_message_client(struct iperf_test *test)
             if (create_client_omit_timer(test) < 0)
                 return -1;
 	        if (test->mode)
-		    if (iperf_create_send_timers(test) < 0)
-		        return -1;
-                break;
+		        if (iperf_create_send_timers(test) < 0)
+		            return -1;
+            break;
         case TEST_RUNNING:
             break;
         case EXCHANGE_RESULTS:
@@ -644,15 +644,15 @@ iperf_run_client(struct iperf_test * test)
 
         /* See if the test is making progress */
         if (test->blocks_received > last_receive_blocks) {
-            printf("%s: test->blocks_received %d\n", __func__, test->blocks_received);
+            printf("%s: test->blocks_received %llu\n", __func__, test->blocks_received);
             last_receive_blocks = test->blocks_received;
             last_receive_time = now;
         }
 
 	    if (result > 0) {
-            printf("%s: result > 0 %d\n", __func__);
+            printf("%s: result > 0 \n", __func__);
 	        if (FD_ISSET(test->ctrl_sck, &read_set)) {
-                printf("%s: iperf_handle_message_client %d\n", __func__);
+                printf("%s: iperf_handle_message_client \n", __func__);
  	            if (iperf_handle_message_client(test) < 0) {
 		            goto cleanup_and_fail;
 		        }
