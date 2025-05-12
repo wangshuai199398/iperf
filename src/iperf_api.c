@@ -1938,7 +1938,7 @@ iperf_send_mt(struct iperf_stream *sp)
 	    {
 	        if (sp->green_light && sp->sender) {
                 if (test->debug)
-                    printf("%s: multisend %d test->settings->bytes %llu test->bytes_sent %llu test->settings->blocks %llu test->blocks_sent %llu\n", __func__, multisend, test->settings->bytes, test->bytes_sent, test->settings->blocks, test->blocks_sent);
+                    printf("%s: multisend %d test->settings->bytes %lu test->bytes_sent %lu test->settings->blocks %lu test->blocks_sent %lu\n", __func__, multisend, test->settings->bytes, test->bytes_sent, test->settings->blocks, test->blocks_sent);
                 // XXX If we hit one of these ending conditions maybe
                 // want to stop even trying to send something?
                 if (multisend > 1 && test->settings->bytes != 0 && test->bytes_sent >= test->settings->bytes)
