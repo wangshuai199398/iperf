@@ -100,7 +100,7 @@ iperf_tcp_send(struct iperf_stream *sp)
         return r;
     
     if (sp->test->debug) {
-        printf("%s: pending_size %d r %d sp->result->bytes_sent %d sp->result->bytes_sent_this_interval %d\n", __func__, sp->pending_size, r, sp->result->bytes_sent, sp->result->bytes_sent_this_interval);
+        printf("%s: pending_size %d r %d sp->result->bytes_sent %lu sp->result->bytes_sent_this_interval %lu\n", __func__, sp->pending_size, r, sp->result->bytes_sent, sp->result->bytes_sent_this_interval);
     }
 
     sp->pending_size -= r;
