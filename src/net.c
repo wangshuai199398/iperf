@@ -494,7 +494,7 @@ Nwrite(int fd, const char *buf, size_t count, int prot)
     register size_t nleft = count;
 
     while (nleft > 0) {
-        printf("%s: Nwrite buf %s nleft %zu\n", __func__, buf, nleft);
+        //printf("%s: Nwrite buf %s nleft %zu\n", __func__, buf, nleft);
 	    r = write(fd, buf, nleft);
 	    if (r < 0) {
 	        switch (errno) {

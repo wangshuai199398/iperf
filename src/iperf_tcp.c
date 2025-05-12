@@ -76,6 +76,17 @@ iperf_tcp_recv(struct iperf_stream *sp)
 }
 
 
+void print_hex(char *buf, int len) {
+    int i;
+    for (i = 0; i < len; i++) {
+        printf("%02X ", (unsigned char)buf[i]);
+        if ((i + 1) % 32 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
 /* iperf_tcp_send
  *
  * sends the data for TCP
@@ -93,8 +104,12 @@ iperf_tcp_send(struct iperf_stream *sp)
 
     if (sp->test->zerocopy)
 	    r = Nsendfile(sp->buffer_fd, sp->socket, sp->buffer, sp->pending_size);
-    else
-	    r = Nwrite(sp->socket, sp->buffer, sp->pending_size, Ptcp);
+    else {
+        if (sp->test->debug) {
+            print_hex(sp->buffer, sp->pending_size);
+        }
+        r = Nwrite(sp->socket, sp->buffer, sp->pending_size, Ptcp);
+    }
 
     if (r < 0)
         return r;
