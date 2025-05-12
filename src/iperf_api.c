@@ -2270,7 +2270,7 @@ send_parameters(struct iperf_test *test)
 	        printf("send_parameters:\n%s\n", str);
 	        cJSON_free(str);
 	    }
-
+        //发送数据
 	    if (JSON_write(test->ctrl_sck, j) < 0) {
 	        i_errno = IESENDPARAMS;
 	        r = -1;
@@ -2694,6 +2694,7 @@ JSON_write(int fd, cJSON *json)
     else {
 	    hsize = strlen(str);
 	    nsize = htonl(hsize);
+        //发送
 	    if (Nwrite(fd, (char*) &nsize, sizeof(nsize), Ptcp) < 0)
 	        r = -1;
 	    else {

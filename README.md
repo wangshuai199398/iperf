@@ -43,6 +43,8 @@ cd /src
 查看日志：
 ./iperf3 -d -V
 
+./src/iperf3 -s -p 1234 -d -V
+./src/iperf3 -c 1.1.1.1 -p 1234 -V -d
 宏定义
 ---------
 HAVE_TCP_CONGESTION 服务端1

@@ -87,7 +87,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
     int i, s;
 #if defined(HAVE_TCP_CONGESTION)
     if (test->debug)
-        printf("%s: HAVE_TCP_CONGESTION %d\n", __func__, HAVE_TCP_CONGESTION);
+        printf("%s: HAVE_TCP_CONGESTION %d\n", __func__, HAVE_TCP_CONGESTION);//1
     int saved_errno;
 #endif /* HAVE_TCP_CONGESTION */
     struct iperf_stream *sp;
@@ -104,7 +104,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 test->bind_port += test->num_streams;
         }
         if (test->debug)
-            printf("%s: test->protocol->connect orig_bind_port %d\n", __func__, orig_bind_port);
+            printf("%s: test->protocol->connect orig_bind_port %d test->protocol->id %d\n", __func__, orig_bind_port, test->protocol->id);
         s = test->protocol->connect(test);//iperf_tcp_connect
         test->bind_port = orig_bind_port;
         if (s < 0)
@@ -281,6 +281,7 @@ create_client_omit_timer(struct iperf_test * test)
     return 0;
 }
 
+// 读ctrl_sck，状态先为9，PARAM_EXCHANGE 交换数据，然后为10 CREATE_STREAMS
 int
 iperf_handle_message_client(struct iperf_test *test)
 {
@@ -303,7 +304,7 @@ iperf_handle_message_client(struct iperf_test *test)
         }
     }
     printf("%s: test->state %d\n", __func__, test->state);
-    switch (test->state) {
+    switch (test->state) {//9 10
         case PARAM_EXCHANGE:
             if (iperf_exchange_parameters(test) < 0)
                 return -1;
@@ -311,7 +312,7 @@ iperf_handle_message_client(struct iperf_test *test)
                 test->on_connect(test);
             break;
         case CREATE_STREAMS:
-            printf("%s: test->mode %d\n", __func__, test->mode);
+            printf("%s: test->mode %d\n", __func__, test->mode);//1
             if (test->mode == BIDIRECTIONAL) {
                 if (iperf_create_streams(test, 1) < 0)
                     return -1;
@@ -399,7 +400,7 @@ iperf_connect(struct iperf_test *test)
     //随机生成一个cookie，后边Nwrite
     make_cookie(test->cookie);
     if (test->debug)
-        printf("%s: test->ctrl_sck %d\n", __func__, test->ctrl_sck);
+        printf("%s: test->ctrl_sck init %d\n", __func__, test->ctrl_sck);
     /* Create and connect the control channel */
     if (test->ctrl_sck < 0)
 	    // Create the control channel using an ephemeral port
@@ -538,7 +539,8 @@ iperf_client_end(struct iperf_test *test)
     return 0;
 }
 
-
+//控制描述符test-mode为1，RECEIVER从服务端读取数据
+//发送数据描述符test-mode为0，SENDER向服务端发送数据
 int
 iperf_run_client(struct iperf_test * test)
 {
@@ -590,7 +592,7 @@ iperf_run_client(struct iperf_test * test)
     /* Begin calculating CPU utilization */
     cpu_util(NULL);
     if (test->debug)
-        printf("%s: test->mode %d\n", __func__, test->mode);
+        printf("%s: test->mode %d\n", __func__, test->mode);// 1 RECEIVER
     if (test->mode != SENDER)
         rcv_timeout_us = (test->settings->rcv_timeout.secs * SEC_TO_US) + test->settings->rcv_timeout.usecs;
     else
@@ -602,7 +604,7 @@ iperf_run_client(struct iperf_test * test)
     startup = 1;
     while (test->state != IPERF_DONE) {
         if (test->debug)
-            printf("%s: ->while test->state %d\n", __func__, test->state);
+            printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 
 	    memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	    memcpy(&write_set, &test->write_set, sizeof(fd_set));
 	    iperf_time_now(&now);

@@ -109,7 +109,9 @@ timeout_connect(int s, const struct sockaddr *name, socklen_t namelen,
 
 	flags = 0;
 	if (timeout != -1) {
+        //获取当前的文件描述符状态（如是否是非阻塞模式）
 		flags = fcntl(s, F_GETFL, 0);
+        //设置文件描述符 s 为非阻塞模式”的
 		if (fcntl(s, F_SETFL, flags | O_NONBLOCK) == -1)
 			return -1;
 	}
@@ -166,7 +168,7 @@ create_socket(int domain, int proto, const char *local, const char *bind_dev, in
 	        freeaddrinfo(local_res);
         return -1;
     }
-    printf("%s: socket ai_family %d\n", __func__, server_res->ai_family);
+    printf("%s: socket ai_family %d\n", __func__, server_res->ai_family);// AF_INET
     s = socket(server_res->ai_family, proto, 0);
     if (s < 0) {
 	    if (local)
