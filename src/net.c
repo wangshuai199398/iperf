@@ -531,7 +531,7 @@ Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
 	    buf += r;
     }
     if (debug) {
-        printf("%s: count %zu", count)
+        printf("%s: count %zu", __func__, count)
     }
     return count;
 }
