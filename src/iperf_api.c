@@ -1843,9 +1843,9 @@ iperf_set_send_state(struct iperf_test *test, signed char state)
 {
     if (test->ctrl_sck >= 0) {
         test->state = state;
-        if (Nwrite(test->ctrl_sck, (char*) &state, sizeof(state), Ptcp) < 0) {
-	    i_errno = IESENDMESSAGE;
-	    return -1;
+        if (Nwrite(test->ctrl_sck, (char*) &state, sizeof(state), Ptcp, test->debug) < 0) {
+	        i_errno = IESENDMESSAGE;
+	        return -1;
         }
     }
     return 0;
@@ -2112,7 +2112,7 @@ iperf_exchange_parameters(struct iperf_test *test)
                 return -1;
             i_errno = IEAUTHTEST;
             err = htonl(i_errno);
-            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp) < 0) {
+            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp, test->debug) < 0) {
                 i_errno = IECTRLWRITE;
                 return -1;
             }
@@ -2123,12 +2123,12 @@ iperf_exchange_parameters(struct iperf_test *test)
 	        if (iperf_set_send_state(test, SERVER_ERROR) != 0)
                 return -1;
             err = htonl(i_errno);
-            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp) < 0) {
+            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp, test->debug) < 0) {
                 i_errno = IECTRLWRITE;
                 return -1;
             }
             err = htonl(errno);
-            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp) < 0) {
+            if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp, test->debug) < 0) {
                 i_errno = IECTRLWRITE;
                 return -1;
             }
@@ -2707,10 +2707,10 @@ JSON_write(int fd, cJSON *json)
 	    hsize = strlen(str);
 	    nsize = htonl(hsize);
         //发送
-	    if (Nwrite(fd, (char*) &nsize, sizeof(nsize), Ptcp) < 0)
+	    if (Nwrite(fd, (char*) &nsize, sizeof(nsize), Ptcp, 1) < 0)
 	        r = -1;
 	    else {
-	        if (Nwrite(fd, str, hsize, Ptcp) < 0)
+	        if (Nwrite(fd, str, hsize, Ptcp, 1) < 0)
 		    r = -1;
 	    }
 	    cJSON_free(str);
@@ -4721,21 +4721,19 @@ iperf_got_sigend(struct iperf_test *test)
      * If we're the client, or if we're a server and running a test,
      * then dump out the accumulated stats so far.
      */
-    if (test->role == 'c' ||
-      (test->role == 's' && test->state == TEST_RUNNING)) {
-
-	test->done = 1;
-	cpu_util(test->cpu_util);
-	test->stats_callback(test);
-	test->state = DISPLAY_RESULTS; /* change local state only */
-	if (test->on_test_finish)
-	    test->on_test_finish(test);
-	test->reporter_callback(test);
+    if (test->role == 'c' || (test->role == 's' && test->state == TEST_RUNNING)) {
+    	test->done = 1;
+	    cpu_util(test->cpu_util);
+	    test->stats_callback(test);
+	    test->state = DISPLAY_RESULTS; /* change local state only */
+	    if (test->on_test_finish)
+	        test->on_test_finish(test);
+	    test->reporter_callback(test);
     }
 
     if (test->ctrl_sck >= 0) {
-	test->state = (test->role == 'c') ? CLIENT_TERMINATE : SERVER_TERMINATE;
-	(void) Nwrite(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp);
+	    test->state = (test->role == 'c') ? CLIENT_TERMINATE : SERVER_TERMINATE;
+	    (void) Nwrite(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp, test->debug);
     }
     i_errno = (test->role == 'c') ? IECLIENTTERM : IESERVERTERM;
     iperf_errexit(test, "interrupt - %s", iperf_strerror(i_errno));
@@ -4746,7 +4744,9 @@ int
 iperf_create_pidfile(struct iperf_test *test)
 {
     if (test->pidfile) {
-        printf("test->pidfile %s", test->pidfile);
+        if (test->debug) {
+            printf("test->pidfile %s", test->pidfile);
+        }
 	    int fd;
 	    char buf[8];
 

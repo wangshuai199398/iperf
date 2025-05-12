@@ -485,17 +485,29 @@ Nread(int fd, char *buf, size_t count, int prot)
 }
 
 
-
+void print_hex(char *buf, int len) {
+    int i;
+    for (i = 0; i < len; i++) {
+        printf("%02X ", (unsigned char)buf[i]);
+        if ((i + 1) % 32 == 0) {
+            printf("\n");
+        }
+        if (i > 320)
+            break;
+    }
+    printf("\n");
+}
 
 int
-Nwrite(int fd, const char *buf, size_t count, int prot)
+Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
 {
     register ssize_t r;
     register size_t nleft = count;
 
     while (nleft > 0) {
-        if (nleft < 100)
-            printf("%s: Nwrite buf %s nleft %zu\n", __func__, buf, nleft);
+        if (debug) {
+            print_hex(buf, nleft);
+        }
 	    r = write(fd, buf, nleft);
 	    if (r < 0) {
 	        switch (errno) {
@@ -517,6 +529,9 @@ Nwrite(int fd, const char *buf, size_t count, int prot)
 	        return NET_SOFTERROR;
 	    nleft -= r;
 	    buf += r;
+    }
+    if (debug) {
+        printf("%s: count %zu", count)
     }
     return count;
 }

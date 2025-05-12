@@ -439,7 +439,7 @@ iperf_connect(struct iperf_test *test)
     }
 #endif /* HAVE_TCP_USER_TIMEOUT */
 
-    if (Nwrite(test->ctrl_sck, test->cookie, COOKIE_SIZE, Ptcp) < 0) {
+    if (Nwrite(test->ctrl_sck, test->cookie, COOKIE_SIZE, Ptcp, test->debug) < 0) {
         i_errno = IESENDCOOKIE;
         return -1;
     }
