@@ -1919,7 +1919,7 @@ iperf_send_mt(struct iperf_stream *sp)
     int no_throttle_check;
 
     if (test->debug)
-        printf("%s: test->settings->burst %d test->multisend %d\n", __func__, test->settings->burst, test->multisend);
+        printf("%s: test->settings->burst %d test->multisend %d test->settings->rate %d\n", __func__, test->settings->burst, test->multisend, test->settings->rate);
     /* Can we do multisend mode? */
     if (test->settings->burst != 0)
         multisend = test->settings->burst;
