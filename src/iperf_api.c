@@ -4361,7 +4361,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         snprintf(template, sizeof(template) / sizeof(char), "%s/iperf3.XXXXXX", tempdir);
     }
     if (test->debug) {
-        printf("%s: template: %s\n", __func__, template);
+        printf("%s: template: %s test->settings->blksize %d\n", __func__, template, test->settings->blksize);
     }
 
     sp = (struct iperf_stream *) malloc(sizeof(struct iperf_stream));
@@ -4386,6 +4386,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
     TAILQ_INIT(&sp->result->interval_results);
 
     /* Create and randomize the buffer */
+    //临时文件创建成功，可以用 fd 读写
     sp->buffer_fd = mkstemp(template);
     if (sp->buffer_fd == -1) {
         i_errno = IECREATESTREAM;
@@ -4393,12 +4394,14 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         free(sp);
         return NULL;
     }
+    //删除文件名，确保程序退出后文件不会残留,文件仍然可用，直到 fd 被 close
     if (unlink(template) < 0) {
         i_errno = IECREATESTREAM;
         free(sp->result);
         free(sp);
         return NULL;
     }
+    //截断文件或调整文件大小
     if (ftruncate(sp->buffer_fd, test->settings->blksize) < 0) {
         i_errno = IECREATESTREAM;
         free(sp->result);
