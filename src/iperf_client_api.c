@@ -104,7 +104,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 test->bind_port += test->num_streams;
         }
         if (test->debug)
-            printf("%s: test->protocol->connect orig_bind_port %d test->protocol->id %d\n", __func__, orig_bind_port, test->protocol->id);
+            printf("%s: test->protocol->connect orig_bind_port %d test->protocol->id %d test->congestion %d\n", __func__, orig_bind_port, test->protocol->id, test->congestion);
         s = test->protocol->connect(test);//iperf_tcp_connect
         test->bind_port = orig_bind_port;
         if (s < 0)
@@ -603,8 +603,9 @@ iperf_run_client(struct iperf_test * test)
 
     startup = 1;
     while (test->state != IPERF_DONE) {
-        if (test->debug)
+        if (test->debug) {
             printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 
+        }
 	    memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	    memcpy(&write_set, &test->write_set, sizeof(fd_set));
 	    iperf_time_now(&now);
@@ -628,8 +629,9 @@ iperf_run_client(struct iperf_test * test)
             }
             timeout = &used_timeout;
         }
-        if (test->debug)
+        if (test->debug) {
             printf("%s: select test->max_fd %d\n", __func__, test->max_fd);
+        }
 	    result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
 	    if (result < 0 && errno != EINTR) {
   	        i_errno = IESELECT;
