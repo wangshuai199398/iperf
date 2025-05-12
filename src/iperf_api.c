@@ -1933,10 +1933,12 @@ iperf_send_mt(struct iperf_stream *sp)
 
     for (; multisend > 0; --multisend) {
 	    if (no_throttle_check)
-	    iperf_time_now(&now);
+	        iperf_time_now(&now);
 	    streams_active = 0;
 	    {
 	        if (sp->green_light && sp->sender) {
+                if (test->debug)
+                    printf("%s: multisend %d test->settings->bytes %llu test->bytes_sent %llu test->settings->blocks %llu test->blocks_sent %llu\n", __func__, multisend, test->settings->bytes, test->bytes_sent, test->settings->blocks, test->blocks_sent);
                 // XXX If we hit one of these ending conditions maybe
                 // want to stop even trying to send something?
                 if (multisend > 1 && test->settings->bytes != 0 && test->bytes_sent >= test->settings->bytes)
