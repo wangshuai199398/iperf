@@ -1953,6 +1953,8 @@ iperf_send_mt(struct iperf_stream *sp)
 		                i_errno = IESTREAMWRITE;
 		                return r;
 		        }
+                if (test->debug)
+                    printf("%s: sp->snd end!\n", __func__);
 		        streams_active = 1;
 		        test->bytes_sent += r;
 		        if (!sp->pending_size)
