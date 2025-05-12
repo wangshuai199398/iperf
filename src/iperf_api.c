@@ -1947,7 +1947,7 @@ iperf_send_mt(struct iperf_stream *sp)
                     break;
                 if (test->debug)
                     printf("%s: sp->snd\n", __func__);
-		        if ((r = sp->snd(sp)) < 0) {
+		        if ((r = sp->snd(sp)) < 0) {//iperf_tcp_send
 		            if (r == NET_SOFTERROR)
 			            break;
 		                i_errno = IESTREAMWRITE;
