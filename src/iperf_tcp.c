@@ -502,8 +502,9 @@ iperf_tcp_connect(struct iperf_test *test)
 	        cJSON_AddNumberToObject(test->json_start, "rcvbuf_actual", rcvbuf_actual);
         }
     }
+    //HAVE_FLOWLABEL 1 HAVE_SO_MAX_PACING_RATE 1 test->settings->flowlabel 0
     if (test->debug) {
-        printf("%s: HAVE_FLOWLABEL %d HAVE_SO_MAX_PACING_RATE %d test->settings->flowlabel %d\n", __func__, HAVE_FLOWLABEL, HAVE_SO_MAX_PACING_RATE, test->settings->flowlabel);
+        printf("%s: HAVE_FLOWLABEL %d HAVE_SO_MAX_PACING_RATE %d test->settings->flowlabel %d test->settings->fqrate %d\n", __func__, HAVE_FLOWLABEL, HAVE_SO_MAX_PACING_RATE, test->settings->flowlabel, test->settings->fqrate);
     }
 #if defined(HAVE_FLOWLABEL)
     if (test->settings->flowlabel) {
