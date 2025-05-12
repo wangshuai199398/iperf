@@ -112,6 +112,9 @@ iperf_create_streams(struct iperf_test *test, int sender)
         if (s < 0)
             return -1;
 
+        if (test->debug)
+            printf("%s: test->congestion %s\n", __func__, test->congestion);
+
 #if defined(HAVE_TCP_CONGESTION)
 	    if (test->protocol->id == Ptcp) {
             //设置拥塞控制算法
