@@ -104,14 +104,17 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 test->bind_port += test->num_streams;
         }
         if (test->debug)
-            printf("%s: test->protocol->connect orig_bind_port %d test->protocol->id %d test->congestion %d\n", __func__, orig_bind_port, test->protocol->id, test->congestion);
-        s = test->protocol->connect(test);//iperf_tcp_connect
+            printf("%s: test->protocol->connect orig_bind_port %d test->protocol->id %d test->congestion %s\n", __func__, orig_bind_port, test->protocol->id, test->congestion);
+
+        //iperf_tcp_connect
+        s = test->protocol->connect(test);
         test->bind_port = orig_bind_port;
         if (s < 0)
             return -1;
 
 #if defined(HAVE_TCP_CONGESTION)
 	    if (test->protocol->id == Ptcp) {
+            //设置拥塞控制算法
 	        if (test->congestion) {
 	    	    if (setsockopt(s, IPPROTO_TCP, TCP_CONGESTION, test->congestion, strlen(test->congestion)) < 0) {
 	    	        saved_errno = errno;

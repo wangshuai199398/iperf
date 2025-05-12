@@ -45,6 +45,14 @@ cd /src
 
 ./src/iperf3 -s -p 1234 -d -V
 ./src/iperf3 -c 1.1.1.1 -p 1234 -V -d
+
+
+连接
+---------
+客户端控制socket进行连接iperf_connect
+客户端数据socket进行连接iperf_tcp_connect
+
+
 宏定义
 ---------
 HAVE_TCP_CONGESTION 服务端1

@@ -390,7 +390,7 @@ iperf_tcp_connect(struct iperf_test *test)
 
     /* Set socket options */
     if (test->debug)
-        printf("%s: test->no_delay %d test->settings->mss %d test->settings->socket_bufsize %d\n", __func__, test->no_delay, test->settings->mss, test->settings->socket_bufsize);
+        printf("%s: test->no_delay %d test->settings->mss %d test->settings->socket_bufsize %d test->settings->snd_timeout %d\n", __func__, test->no_delay, test->settings->mss, test->settings->socket_bufsize, test->settings->snd_timeout);
     if (test->no_delay) {
         opt = 1;
         if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0) {
@@ -447,6 +447,7 @@ iperf_tcp_connect(struct iperf_test *test)
 
     /* Read back and verify the sender socket buffer size */
     optlen = sizeof(sndbuf_actual);
+    //获取套接字发送缓冲区大小  sndbuf_actual 16384 optlen 4
     if (getsockopt(s, SOL_SOCKET, SO_SNDBUF, &sndbuf_actual, &optlen) < 0) {
 	    saved_errno = errno;
 	    close(s);
@@ -467,6 +468,7 @@ iperf_tcp_connect(struct iperf_test *test)
 
     /* Read back and verify the receiver socket buffer size */
     optlen = sizeof(rcvbuf_actual);
+    //获取 接收缓冲区大小 rcvbuf_actual 131072 optlen 4
     if (getsockopt(s, SOL_SOCKET, SO_RCVBUF, &rcvbuf_actual, &optlen) < 0) {
 	    saved_errno = errno;
 	    close(s);
@@ -477,7 +479,7 @@ iperf_tcp_connect(struct iperf_test *test)
     }
     if (test->debug) {
         printf("%s: rcvbuf_actual %d optlen %d\n", __func__, rcvbuf_actual, optlen);
-	    printf("RCVBUF is %u, socket_bufsize %u\n", rcvbuf_actual, test->settings->socket_bufsize);
+	    printf("RCVBUF is %u, socket_bufsize %u test->json_output %d\n", rcvbuf_actual, test->settings->socket_bufsize, test->json_output);
     }
     if (test->settings->socket_bufsize && test->settings->socket_bufsize > rcvbuf_actual) {
 	    i_errno = IESETBUF2;
