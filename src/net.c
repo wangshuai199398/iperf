@@ -485,7 +485,7 @@ Nread(int fd, char *buf, size_t count, int prot)
 }
 
 
-void print_hex(char *buf, int len) {
+void print_hex(const char *buf, int len) {
     int i;
     for (i = 0; i < len; i++) {
         printf("%02X ", (unsigned char)buf[i]);
