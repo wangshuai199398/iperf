@@ -86,7 +86,7 @@ iperf_tcp_send(struct iperf_stream *sp)
     int r;
 
     if (sp->test->debug) {
-        printf("%s: pending_size %d\n", __func__, sp->pending_size);
+        printf("%s: pending_size %d sp->settings->blksize %d\n", __func__, sp->pending_size, sp->settings->blksize);
     }
     if (!sp->pending_size)
 	    sp->pending_size = sp->settings->blksize;
