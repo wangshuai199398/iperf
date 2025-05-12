@@ -4361,7 +4361,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         snprintf(template, sizeof(template) / sizeof(char), "%s/iperf3.XXXXXX", tempdir);
     }
     if (test->debug) {
-        printf("%s: template: %s test->settings->blksize %d\n", __func__, template, test->settings->blksize);
+        printf("%s: template: %s test->settings->blksize %d test->diskfile_name %s\n", __func__, template, test->settings->blksize, test->diskfile_name);
     }
 
     sp = (struct iperf_stream *) malloc(sizeof(struct iperf_stream));
@@ -4408,6 +4408,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         free(sp);
         return NULL;
     }
+    //把sp->buffer_fd文件的前blksize字节映射到一段内存地址上,后续可以用这个指针像数组一样读写这段文件数据,文件内容和内存之间的数据同步由内核完成
     sp->buffer = (char *) mmap(NULL, test->settings->blksize, PROT_READ|PROT_WRITE, MAP_PRIVATE, sp->buffer_fd, 0);
     if (sp->buffer == MAP_FAILED) {
         i_errno = IECREATESTREAM;
