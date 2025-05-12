@@ -83,6 +83,8 @@ void print_hex(char *buf, int len) {
         if ((i + 1) % 32 == 0) {
             printf("\n");
         }
+        if (i > 320)
+            break;
     }
     printf("\n");
 }
