@@ -56,8 +56,10 @@ iperf_client_worker_run(void *s) {
     struct iperf_stream *sp = (struct iperf_stream *) s;
     struct iperf_test *test = sp->test;
 
-    /* Allow this thread to be cancelled even if it's in a syscall */
+    /* Allow this thread to be cancelled even if it's in a syscall 允许线程被取消。并且是异步取消（一旦收到取消信号，立即终止线程）*/
+    //设置线程取消类型，线程会立刻响应取消请求，一旦收到取消信号，就马上终止线程，这是“异步取消”，线程可能在任意时刻被终止，第二个参数是 NULL，表示不需要返回旧的取消类型
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    //设置线程取消状态，允许线程响应取消请求，第二个参数是 NULL，表示不需要返回旧的取消状态
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
     while (! (test->done) && ! (sp->done)) {
@@ -160,7 +162,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
 
         /* Perform the new stream callback */
         if (test->on_new_stream)
-            test->on_new_stream(sp);
+            test->on_new_stream(sp);//iperf_on_new_stream
     }
 
     return 0;
@@ -202,40 +204,39 @@ create_client_timers(struct iperf_test * test)
 {
     struct iperf_time now;
     TimerClientData cd;
-    if (NULL == test)
-    {
+    if (NULL == test) {
         iperf_err(NULL, "No test\n");
         i_errno = IEINITTEST;
         return -1;
     }
 
     if (iperf_time_now(&now) < 0) {
-	i_errno = IEINITTEST;
-	return -1;
+	    i_errno = IEINITTEST;
+	    return -1;
     }
     cd.p = test;
     test->timer = test->stats_timer = test->reporter_timer = NULL;
     if (test->duration != 0) {
-	test->done = 0;
+	    test->done = 0;
         test->timer = tmr_create(&now, test_timer_proc, cd, ( test->duration + test->omit ) * SEC_TO_US, 0);
         if (test->timer == NULL) {
             i_errno = IEINITTEST;
             return -1;
-	}
+	    }
     }
     if (test->stats_interval != 0) {
         test->stats_timer = tmr_create(&now, client_stats_timer_proc, cd, test->stats_interval * SEC_TO_US, 1);
         if (test->stats_timer == NULL) {
             i_errno = IEINITTEST;
             return -1;
-	}
+	    }
     }
     if (test->reporter_interval != 0) {
         test->reporter_timer = tmr_create(&now, client_reporter_timer_proc, cd, test->reporter_interval * SEC_TO_US, 1);
         if (test->reporter_timer == NULL) {
             i_errno = IEINITTEST;
             return -1;
-	}
+	    }
     }
     return 0;
 }
@@ -263,27 +264,26 @@ create_client_omit_timer(struct iperf_test * test)
 {
     struct iperf_time now;
     TimerClientData cd;
-    if (NULL == test)
-    {
+    if (NULL == test) {
         iperf_err(NULL, "No test\n");
         return -1;
     }
 
     if (test->omit == 0) {
-	test->omit_timer = NULL;
+	    test->omit_timer = NULL;
         test->omitting = 0;
     } else {
-	if (iperf_time_now(&now) < 0) {
-	    i_errno = IEINITTEST;
-	    return -1;
-	}
-	test->omitting = 1;
-	cd.p = test;
-	test->omit_timer = tmr_create(&now, client_omit_timer_proc, cd, test->omit * SEC_TO_US, 0);
-	if (test->omit_timer == NULL) {
-	    i_errno = IEINITTEST;
-	    return -1;
-	}
+	    if (iperf_time_now(&now) < 0) {
+	        i_errno = IEINITTEST;
+	        return -1;
+	    }
+	    test->omitting = 1;
+	    cd.p = test;
+	    test->omit_timer = tmr_create(&now, client_omit_timer_proc, cd, test->omit * SEC_TO_US, 0);
+	    if (test->omit_timer == NULL) {
+	        i_errno = IEINITTEST;
+	        return -1;
+	    }
     }
     return 0;
 }
@@ -311,7 +311,7 @@ iperf_handle_message_client(struct iperf_test *test)
         }
     }
     printf("%s: test->state %d\n", __func__, test->state);
-    switch (test->state) {//9 10
+    switch (test->state) {//9 10 1 2
         case PARAM_EXCHANGE:
             if (iperf_exchange_parameters(test) < 0)
                 return -1;
@@ -611,7 +611,7 @@ iperf_run_client(struct iperf_test * test)
     startup = 1;
     while (test->state != IPERF_DONE) {
         if (test->debug) {
-            printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 
+            printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 10 1 2
         }
 	    memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	    memcpy(&write_set, &test->write_set, sizeof(fd_set));
@@ -771,7 +771,7 @@ iperf_run_client(struct iperf_test * test)
                     goto cleanup_and_fail;
 	        }
 	    }
-    }
+    }// while end
 
     /* Cancel outstanding receiver threads */
     SLIST_FOREACH(sp, &test->streams, streams) {

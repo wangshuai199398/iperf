@@ -874,6 +874,9 @@ set_protocol(struct iperf_test *test, int prot_id)
 void
 iperf_on_new_stream(struct iperf_stream *sp)
 {
+    if (sp->test->debug) {
+        printf("%s: ->connect_msg\n", __func__);
+    }
     connect_msg(sp);
 }
 
@@ -885,11 +888,12 @@ iperf_on_test_start(struct iperf_test *test)
     } else {
 	    if (test->verbose) {
 	        if (test->settings->bytes)
-		    iperf_printf(test, test_start_bytes, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->bytes, test->settings->tos);
+		        iperf_printf(test, test_start_bytes, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->bytes, test->settings->tos);
 	        else if (test->settings->blocks)
-		    iperf_printf(test, test_start_blocks, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->blocks, test->settings->tos);
+		        iperf_printf(test, test_start_blocks, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->settings->blocks, test->settings->tos);
 	        else
-		    iperf_printf(test, test_start_time, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->duration, test->settings->tos);
+                //Starting Test: protocol: TCP, 1 streams, 131072 byte blocks, omitting 0 seconds, 10 second test, tos 0
+		        iperf_printf(test, test_start_time, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->duration, test->settings->tos);
 	    }
     }
 }
@@ -1914,6 +1918,8 @@ iperf_send_mt(struct iperf_stream *sp)
     struct iperf_time now;
     int no_throttle_check;
 
+    if (test->debug)
+        printf("%s: test->settings->burst %d test->multisend %d\n", __func__, test->settings->burst, test->multisend);
     /* Can we do multisend mode? */
     if (test->settings->burst != 0)
         multisend = test->settings->burst;
@@ -1985,7 +1991,9 @@ iperf_init_test(struct iperf_test *test)
 {
     struct iperf_time now;
     struct iperf_stream *sp;
-
+    if (test->debug) {
+        printf("%s: test->protocol->init %p\n", __func__, test->protocol->init);
+    }
     if (test->protocol->init) {
         if (test->protocol->init(test) < 0)
             return -1;
@@ -1993,15 +2001,15 @@ iperf_init_test(struct iperf_test *test)
 
     /* Init each stream. */
     if (iperf_time_now(&now) < 0) {
-	i_errno = IEINITTEST;
-	return -1;
+	    i_errno = IEINITTEST;
+	    return -1;
     }
     SLIST_FOREACH(sp, &test->streams, streams) {
-	sp->result->start_time = sp->result->start_time_fixed = now;
+	    sp->result->start_time = sp->result->start_time_fixed = now;
     }
 
     if (test->on_test_start)
-        test->on_test_start(test);
+        test->on_test_start(test);//iperf_on_test_start
 
     return 0;
 }
@@ -2026,19 +2034,19 @@ iperf_create_send_timers(struct iperf_test * test)
     TimerClientData cd;
 
     if (iperf_time_now(&now) < 0) {
-	i_errno = IEINITTEST;
-	return -1;
+	    i_errno = IEINITTEST;
+	    return -1;
     }
     SLIST_FOREACH(sp, &test->streams, streams) {
         sp->green_light = 1;
-	if (test->settings->rate != 0 && sp->sender) {
-	    cd.p = sp;
-	    sp->send_timer = tmr_create(NULL, send_timer_proc, cd, test->settings->pacing_timer, 1);
-	    if (sp->send_timer == NULL) {
-		i_errno = IEINITTEST;
-		return -1;
+	    if (test->settings->rate != 0 && sp->sender) {
+	        cd.p = sp;
+	        sp->send_timer = tmr_create(NULL, send_timer_proc, cd, test->settings->pacing_timer, 1);
+	        if (sp->send_timer == NULL) {
+		        i_errno = IEINITTEST;
+		        return -1;
+	        }
 	    }
-	}
     }
     return 0;
 }
@@ -2786,16 +2794,16 @@ connect_msg(struct iperf_stream *sp)
 
     if (getsockdomain(sp->socket) == AF_INET) {
         inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->local_addr)->sin_addr, ipl, sizeof(ipl));
-	mapped_v4_to_regular_v4(ipl);
+	    mapped_v4_to_regular_v4(ipl);
         inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->remote_addr)->sin_addr, ipr, sizeof(ipr));
-	mapped_v4_to_regular_v4(ipr);
+	    mapped_v4_to_regular_v4(ipr);
         lport = ntohs(((struct sockaddr_in *) &sp->local_addr)->sin_port);
         rport = ntohs(((struct sockaddr_in *) &sp->remote_addr)->sin_port);
     } else {
         inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->local_addr)->sin6_addr, ipl, sizeof(ipl));
-	mapped_v4_to_regular_v4(ipl);
+	    mapped_v4_to_regular_v4(ipl);
         inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->remote_addr)->sin6_addr, ipr, sizeof(ipr));
-	mapped_v4_to_regular_v4(ipr);
+	    mapped_v4_to_regular_v4(ipr);
         lport = ntohs(((struct sockaddr_in6 *) &sp->local_addr)->sin6_port);
         rport = ntohs(((struct sockaddr_in6 *) &sp->remote_addr)->sin6_port);
     }
@@ -2803,7 +2811,8 @@ connect_msg(struct iperf_stream *sp)
     if (sp->test->json_output)
         cJSON_AddItemToArray(sp->test->json_connected, iperf_json_printf("socket: %d  local_host: %s  local_port: %d  remote_host: %s  remote_port: %d", (int64_t) sp->socket, ipl, (int64_t) lport, ipr, (int64_t) rport));
     else
-	iperf_printf(sp->test, report_connected, sp->socket, ipl, lport, ipr, rport);
+        //[  5] local 1.1.1.2 port 45664 connected to 1.1.1.1 port 1234
+	    iperf_printf(sp->test, report_connected, sp->socket, ipl, lport, ipr, rport);
 }
 
 

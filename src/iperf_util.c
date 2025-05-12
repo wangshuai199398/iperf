@@ -51,9 +51,12 @@
 #include "iperf_api.h"
 
 /*
- * Read entropy from /dev/urandom
- * Errors are fatal.
- * Returns 0 on success.
+ * 从 /dev/urandom 读取随机字节填充缓冲区, 用于生成高质量随机数
+ * 只打开一次文件，反复复用
+ * 关闭 stdio 缓冲区,让每次读取都是实时的
+ * /dev/urandom 是伪随机设备, 非阻塞，适合大多数应用。
+ * 若需更高安全性用 /dev/random, 但可能会阻塞
+ * 可以用 getrandom() 替代, 更现代的 Linux 系统推荐用 syscall getrandom()（glibc >= 2.25）
  */
 int readentropy(void *out, size_t outsize)
 {
@@ -63,13 +66,16 @@ int readentropy(void *out, size_t outsize)
     if (!outsize) return 0;
 
     if (frandom == NULL) {
+        //打开 /dev/urandom 设备为二进制读模式（rb）
         frandom = fopen(rndfile, "rb");
         if (frandom == NULL) {
             iperf_errexit(NULL, "error - failed to open %s: %s\n",
                           rndfile, strerror(errno));
         }
+        //关闭标准库缓冲,让 fread 变成真正的系统读取，防止延迟取数
         setbuf(frandom, NULL);
     }
+    //从 /dev/urandom 读取 outsize 字节填入 out
     if (fread(out, 1, outsize, frandom) != outsize) {
         iperf_errexit(NULL, "error - failed to read %s: %s\n",
                       rndfile,
