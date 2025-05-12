@@ -4360,6 +4360,9 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
         }
         snprintf(template, sizeof(template) / sizeof(char), "%s/iperf3.XXXXXX", tempdir);
     }
+    if (test->debug) {
+        printf("%s: template: %s\n", __func__, template);
+    }
 
     sp = (struct iperf_stream *) malloc(sizeof(struct iperf_stream));
     if (!sp) {

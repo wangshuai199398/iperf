@@ -131,6 +131,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
 	    	    socklen_t len = TCP_CA_NAME_MAX;
 	    	    char ca[TCP_CA_NAME_MAX + 1];
                 int rc;
+                //获取TCP 拥塞控制算法名称
 	    	    rc = getsockopt(s, IPPROTO_TCP, TCP_CONGESTION, ca, &len);
                 if (rc < 0 && test->congestion) {
 	    	        saved_errno = errno;
@@ -147,7 +148,7 @@ iperf_create_streams(struct iperf_test *test, int sender)
                 }
 
 	    	    if (test->debug) {
-	    	        printf("Congestion algorithm is %s\n", test->congestion_used);//
+	    	        printf("Congestion algorithm is %s\n", test->congestion_used);//cubic
 	    	    }
 	        }
 	    }
