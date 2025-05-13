@@ -49,7 +49,7 @@ cd /src
 
 --port 指定客户端数据连接的客户端端口
 -l     会设置test->settings->blksize，tcp默认131072, udp默认1440
--b     带宽，udp中设置bandwidth，1G是10000000000
+-b     带宽，tcp中设置Target Bitrate，1M是1000000，udp中设置bandwidth，1G是10000000000
 
 
 
