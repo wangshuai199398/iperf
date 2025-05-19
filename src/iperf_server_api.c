@@ -149,6 +149,8 @@ iperf_accept(struct iperf_test *test)
     struct sockaddr_storage addr;
 
     len = sizeof(addr);
+    if (test->debug)
+        printf("Server accept\n");
     if ((s = accept(test->listener, (struct sockaddr *) &addr, &len)) < 0) {
         i_errno = IEACCEPT;
         return -1;
@@ -159,6 +161,8 @@ iperf_accept(struct iperf_test *test)
         test->ctrl_sck = s;
         // set TCP_NODELAY for lower latency on control messages
         int flag = 1;
+        if (test->debug)
+            printf("test->ctrl_sck == -1\n");
         if (setsockopt(test->ctrl_sck, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int))) {
             i_errno = IESETNODELAY;
             return -1;
@@ -173,7 +177,8 @@ iperf_accept(struct iperf_test *test)
             }
         }
 #endif /* HAVE_TCP_USER_TIMEOUT */
-
+        if (test->debug)
+            printf("Nread test->cookie\n");
         if (Nread(test->ctrl_sck, test->cookie, COOKIE_SIZE, Ptcp) != COOKIE_SIZE) {
             /*
              * Note this error covers both the case of a system error
@@ -183,16 +188,17 @@ iperf_accept(struct iperf_test *test)
             i_errno = IERECVCOOKIE;
             return -1;
         }
-	FD_SET(test->ctrl_sck, &test->read_set);
-	if (test->ctrl_sck > test->max_fd) test->max_fd = test->ctrl_sck;
+	    FD_SET(test->ctrl_sck, &test->read_set);
+	    if (test->ctrl_sck > test->max_fd)
+            test->max_fd = test->ctrl_sck;
 
-	if (iperf_set_send_state(test, PARAM_EXCHANGE) != 0)
+	    if (iperf_set_send_state(test, PARAM_EXCHANGE) != 0)
             return -1;
         if (iperf_exchange_parameters(test) < 0)
             return -1;
-	if (test->server_affinity != -1)
-	    if (iperf_setaffinity(test, test->server_affinity) != 0)
-		return -1;
+	    if (test->server_affinity != -1)
+	        if (iperf_setaffinity(test, test->server_affinity) != 0)
+		        return -1;
         if (test->on_connect)
             test->on_connect(test);
     } else {

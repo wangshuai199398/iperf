@@ -896,6 +896,7 @@ iperf_on_test_start(struct iperf_test *test)
 		        iperf_printf(test, test_start_time, test->protocol->name, test->num_streams, test->settings->blksize, test->omit, test->duration, test->settings->tos);
 	    }
     }
+    //Starting Test: protocol: TCP, 1 streams, 131072 byte blocks, omitting 0 seconds, 10 second test, tos 0
 }
 
 /* This converts an IPv6 string address from IPv4-mapped format into regular
@@ -942,7 +943,7 @@ iperf_on_connect(struct iperf_test *test)
     if (test->json_output)
 	    cJSON_AddItemToObject(test->json_start, "timestamp", iperf_json_printf("time: %s  timesecs: %d", now_str, (int64_t) now_secs));
     else if (test->verbose)
-	    iperf_printf(test, report_time, now_str);
+	    iperf_printf(test, report_time, now_str);//Time: Mon, 19 May 2025 11:36:26 GMT
 
     if (test->role == 'c') {
 	    if (test->json_output)
@@ -995,7 +996,7 @@ iperf_on_connect(struct iperf_test *test)
             }
         }
         if (test->settings->rate)
-            iperf_printf(test, "      Target Bitrate: %"PRIu64"\n", test->settings->rate);
+            iperf_printf(test, "      Target Bitrate: %"PRIu64"\n", test->settings->rate);//Target Bitrate: 1000000
     }
 }
 
@@ -1843,6 +1844,8 @@ iperf_set_send_state(struct iperf_test *test, signed char state)
 {
     if (test->ctrl_sck >= 0) {
         test->state = state;
+        if (test->debug)
+            printf("Nwrite state\n");
         if (Nwrite(test->ctrl_sck, (char*) &state, sizeof(state), Ptcp, test->debug) < 0) {
 	        i_errno = IESENDMESSAGE;
 	        return -1;
@@ -2101,13 +2104,19 @@ iperf_exchange_parameters(struct iperf_test *test)
     int32_t err;
 
     if (test->role == 'c') {
+        if (test->debug)
+            printf("send_parameters\n");
         if (send_parameters(test) < 0)
             return -1;
     } else {
+        if (test->debug)
+            printf("get_parameters\n");
         if (get_parameters(test) < 0)
             return -1;
 #if defined(HAVE_SSL)
         if (test_is_authorized(test) < 0){
+            if (test->debug)
+                printf("iperf_set_send_state\n");
             if (iperf_set_send_state(test, SERVER_ERROR) != 0)
                 return -1;
             i_errno = IEAUTHTEST;
@@ -2120,14 +2129,20 @@ iperf_exchange_parameters(struct iperf_test *test)
         }
 #endif //HAVE_SSL
         if ((s = test->protocol->listen(test)) < 0) {
+            if (test->debug)
+                printf("iperf_set_send_state 2\n");
 	        if (iperf_set_send_state(test, SERVER_ERROR) != 0)
                 return -1;
             err = htonl(i_errno);
+            if (test->debug)
+                printf("Nwrite \n");
             if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp, test->debug) < 0) {
                 i_errno = IECTRLWRITE;
                 return -1;
             }
             err = htonl(errno);
+            if (test->debug)
+                printf("Nwrite \n");
             if (Nwrite(test->ctrl_sck, (char*) &err, sizeof(err), Ptcp, test->debug) < 0) {
                 i_errno = IECTRLWRITE;
                 return -1;
@@ -2140,6 +2155,8 @@ iperf_exchange_parameters(struct iperf_test *test)
         test->prot_listener = s;
 
         // Send the control message to create streams and start the test
+        if (test->debug)
+                printf("iperf_set_send_state 3\n");
 	    if (iperf_set_send_state(test, CREATE_STREAMS) != 0)
             return -1;
     }
