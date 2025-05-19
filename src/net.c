@@ -455,8 +455,11 @@ Nread(int fd, char *buf, size_t count, int prot, int debug)
                 return NET_HARDERROR;
         } else if (r == 0)
             break;
-        if (debug)
+        if (debug) {
+            printf("Nread\n");
             print_hex(buf, r);
+        }
+
         nleft -= r;
         buf += r;
 

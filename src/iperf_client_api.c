@@ -313,6 +313,7 @@ iperf_handle_message_client(struct iperf_test *test)
             return -1;
         }
     }
+    printf("%s: Nread 1\n", __func__);
     printf("%s: test->state %d\n", __func__, test->state);
     switch (test->state) {//9 10 1 2
         case PARAM_EXCHANGE:
