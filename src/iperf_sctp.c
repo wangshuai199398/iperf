@@ -60,7 +60,7 @@ iperf_sctp_recv(struct iperf_stream *sp)
 #if defined(HAVE_SCTP_H)
     int r;
 
-    r = Nread(sp->socket, sp->buffer, sp->settings->blksize, Psctp);
+    r = Nread(sp->socket, sp->buffer, sp->settings->blksize, Psctp, sp->test->debug);
     if (r < 0)
         return r;
 
@@ -129,7 +129,7 @@ iperf_sctp_accept(struct iperf_test * test)
         return -1;
     }
 
-    if (Nread(s, cookie, COOKIE_SIZE, Psctp) < 0) {
+    if (Nread(s, cookie, COOKIE_SIZE, Psctp, test->debug) < 0) {
         i_errno = IERECVCOOKIE;
         close(s);
         return -1;

@@ -179,7 +179,7 @@ iperf_accept(struct iperf_test *test)
 #endif /* HAVE_TCP_USER_TIMEOUT */
         if (test->debug)
             printf("Nread test->cookie\n");
-        if (Nread(test->ctrl_sck, test->cookie, COOKIE_SIZE, Ptcp) != COOKIE_SIZE) {
+        if (Nread(test->ctrl_sck, test->cookie, COOKIE_SIZE, Ptcp, test->debug) != COOKIE_SIZE) {
             /*
              * Note this error covers both the case of a system error
              * or the inability to read the correct amount of data
@@ -231,7 +231,7 @@ iperf_handle_message_server(struct iperf_test *test)
 
     if (test->debug)
         printf("%s: Nread test->ctrl_sck %d\n", __func__, test->ctrl_sck);
-    if ((rval = Nread(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp)) <= 0) {
+    if ((rval = Nread(test->ctrl_sck, (char*) &test->state, sizeof(signed char), Ptcp, test->debug)) <= 0) {
         if (rval == 0) {
 	        iperf_err(test, "the client has unexpectedly closed the connection");
             i_errno = IECTRLCLOSE;

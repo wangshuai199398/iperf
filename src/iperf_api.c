@@ -2751,34 +2751,34 @@ JSON_read(int fd)
      * Then read the JSON into a buffer and parse it.  Return a parsed JSON
      * structure, NULL if there was an error.
      */
-    if (Nread(fd, (char*) &nsize, sizeof(nsize), Ptcp) >= 0) {
-	hsize = ntohl(nsize);
+    if (Nread(fd, (char*) &nsize, sizeof(nsize), Ptcp, 1) >= 0) {
+	    hsize = ntohl(nsize);
 	/* Allocate a buffer to hold the JSON */
-	strsize = hsize + 1;              /* +1 for trailing NULL */
-	if (strsize) {
-	str = (char *) calloc(sizeof(char), strsize);
-	if (str != NULL) {
-	    rc = Nread(fd, str, hsize, Ptcp);
-	    if (rc >= 0) {
+	    strsize = hsize + 1;              /* +1 for trailing NULL */
+	    if (strsize) {
+	        str = (char *) calloc(sizeof(char), strsize);
+	        if (str != NULL) {
+	            rc = Nread(fd, str, hsize, Ptcp, 1);
+	            if (rc >= 0) {
 		/*
 		 * We should be reading in the number of bytes corresponding to the
 		 * length in that 4-byte integer.  If we don't the socket might have
 		 * prematurely closed.  Only do the JSON parsing if we got the
 		 * correct number of bytes.
 		 */
-		if (rc == hsize) {
-		    json = cJSON_Parse(str);
-		}
-		else {
-		    printf("WARNING:  Size of data read does not correspond to offered length\n");
-		}
+		            if (rc == hsize) {
+		                json = cJSON_Parse(str);
+		            }
+		            else {
+		                printf("WARNING:  Size of data read does not correspond to offered length\n");
+		            }
+	            }
+	        }
+	        free(str);
 	    }
-	}
-	free(str);
-	}
-	else {
-	    printf("WARNING:  Data length overflow\n");
-	}
+	    else {
+	        printf("WARNING:  Data length overflow\n");
+	    }
     }
     return json;
 }

@@ -403,7 +403,7 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
 /********************************************************************/
 
 int
-Nread(int fd, char *buf, size_t count, int prot)
+Nread(int fd, char *buf, size_t count, int prot, int debug)
 {
     register ssize_t r;
     register size_t nleft = count;
@@ -444,7 +444,8 @@ Nread(int fd, char *buf, size_t count, int prot)
                 return NET_HARDERROR;
         } else if (r == 0)
             break;
-
+        if (debug)
+            print_hex(buf, r);
         nleft -= r;
         buf += r;
 

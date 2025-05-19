@@ -57,7 +57,7 @@ iperf_tcp_recv(struct iperf_stream *sp)
 {
     int r;
 
-    r = Nread(sp->socket, sp->buffer, sp->settings->blksize, Ptcp);
+    r = Nread(sp->socket, sp->buffer, sp->settings->blksize, Ptcp, sp->test->debug);
 
     if (r < 0)
         return r;
@@ -136,7 +136,7 @@ iperf_tcp_accept(struct iperf_test * test)
         return -1;
     }
 
-    if (Nread(s, cookie, COOKIE_SIZE, Ptcp) < 0) {
+    if (Nread(s, cookie, COOKIE_SIZE, Ptcp, test->debug) < 0) {
         i_errno = IERECVCOOKIE;
         return -1;
     }
