@@ -397,7 +397,18 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
     return s;
 }
 
-
+void print_hex(const char *buf, int len) {
+    int i;
+    for (i = 0; i < len; i++) {
+        printf("%02x ", (unsigned char)buf[i]);
+        if ((i + 1) % 32 == 0) {
+            printf("\n");
+        }
+        if (i > 320)
+            break;
+    }
+    printf("\n");
+}
 /*******************************************************************/
 /* reads 'count' bytes from a socket  */
 /********************************************************************/
@@ -485,19 +496,6 @@ Nread(int fd, char *buf, size_t count, int prot, int debug)
     return count - nleft;
 }
 
-
-void print_hex(const char *buf, int len) {
-    int i;
-    for (i = 0; i < len; i++) {
-        printf("%02x ", (unsigned char)buf[i]);
-        if ((i + 1) % 32 == 0) {
-            printf("\n");
-        }
-        if (i > 320)
-            break;
-    }
-    printf("\n");
-}
 
 int
 Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
