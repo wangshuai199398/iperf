@@ -612,10 +612,11 @@ iperf_run_client(struct iperf_test * test)
     last_receive_blocks = 0;
 
     startup = 1;
+    //开始连接事状态变化0 9 10 1 2，运行过程中test->state会在2循环，即 TEST_RUNNING
     while (test->state != IPERF_DONE) {
-        if (test->debug) {
-            printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 10 1 2
-        }
+        //if (test->debug) {
+        //    printf("%s: ->while test->state %d\n", __func__, test->state);//0 9 10 1 2
+        //}
 	    memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	    memcpy(&write_set, &test->write_set, sizeof(fd_set));
 	    iperf_time_now(&now);
@@ -639,9 +640,9 @@ iperf_run_client(struct iperf_test * test)
             }
             timeout = &used_timeout;
         }
-        if (test->debug) {
-            printf("%s: select test->max_fd %d\n", __func__, test->max_fd);
-        }
+        //if (test->debug) {
+        //    printf("%s: select test->max_fd %d\n", __func__, test->max_fd);
+        //}
 	    result = select(test->max_fd + 1, &read_set, &write_set, NULL, timeout);
 	    if (result < 0 && errno != EINTR) {
   	        i_errno = IESELECT;
