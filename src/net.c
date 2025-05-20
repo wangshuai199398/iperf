@@ -456,7 +456,7 @@ Nread(int fd, char *buf, size_t count, int prot, int debug)
         } else if (r == 0)
             break;
         if (debug) {
-            printf("Nread\n");
+            printf("Nread %ld\n", r);
             print_hex(buf, r);
         }
 

@@ -127,11 +127,12 @@ HAVE_SO_MAX_PACING_RATE  1
 ```
 
 ```shell
-客户端先发送                                   服务端
-1. test->cookie                        收到cookie，发送09状态    PARAM_EXCHANGE
-2. 参数大小                              获取参数大小
-3. 参数send_parameters                   获取参数，发送状态0a     CREATE_STREAMS
+客户端发送                                                 服务端
+1. test->cookie                 37B         收到cookie，发送09状态   1B    PARAM_EXCHANGE
+2. 参数大小                       4B         获取参数大小
+3. 参数send_parameters          144B         获取参数，发送状态0a      1B    CREATE_STREAMS
 4. 创建数据socket
-5. 使用数据连接socket发送test->cookie      获取cookie，发送状态01   TEST_START
-										发送状态02              TEST_RUNNING
+5. 数据socket发送test->cookie    37B         获取cookie，发送状态01    1B    TEST_START
+6. Starting Test                            发送状态02              1B     TEST_RUNNING
+7. pthread_create发送数据       131072B      读数据
 ``` 
