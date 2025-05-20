@@ -222,7 +222,7 @@ create_client_timers(struct iperf_test * test)
     cd.p = test;
     test->timer = test->stats_timer = test->reporter_timer = NULL;
     if (test->debug) {
-        printf("%s: test->duration %d test->stats_interval %.2f test->reporter_interval %.2f\n", __func__, test->duration, test->omit);
+        printf("%s: test->duration %d test->stats_interval %.2d test->reporter_interval %.2d\n", __func__, test->duration, test->omit);
     }
     if (test->duration != 0) {
 	    test->done = 0;
