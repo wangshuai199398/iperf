@@ -193,8 +193,10 @@ iperf_accept(struct iperf_test *test)
 
 	    if (iperf_set_send_state(test, PARAM_EXCHANGE) != 0)
             return -1;
-        if (iperf_exchange_parameters(test) < 0)
+        if (iperf_exchange_parameters(test) < 0) {
             return -1;
+        }
+
 	    if (test->server_affinity != -1) {
 	        if (iperf_setaffinity(test, test->server_affinity) != 0)
 		        return -1;
