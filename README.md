@@ -44,7 +44,7 @@ cd /src
 ./src/iperf3 -d -V
 
 ./src/iperf3 -s -p 1234 -d -V
-./src/iperf3 -c 1.1.1.1 -p 1234 -V -d
+./src/iperf3 -c 1.1.1.1 -p 1234 -V -d -l 128
 
 
 --port 指定客户端数据连接的客户端端口
