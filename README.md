@@ -144,3 +144,21 @@ HAVE_SO_MAX_PACING_RATE  1
 4次挥手
 tcp_send_fin
 ``` 
+
+```shell
+ * 序列号: 发送数据的位置，告诉接收方这个数据从哪里开始
+ * 确认号: 告诉对方“我已经成功接收到哪个序列号之前的数据，请从这个位置继续发送”
+
+客户端 seq ack                服务端 seq ack
+81a15e61  0        SYN       5b499d3d  81a15e62 SYNACK  发送给对方
+81a15e62  5b499d3e ack                                 3次握手
+
+81a15e62  5b499d3e snd 25B   5b499d3e 81a15e87 ack      客户端开始发送数据
+                             5b499d3e 81a15e87 snd  1B
+81a15e87  5b499d3f ack
+
+81a15e87  5b499d3f snd 4B    
+81a15e8b  5b499d3f snd 89B   5b499d3f 81a15f14 ack
+
+seq是上一次的seq+数据长度，同时也是对方的ack数据
+```
