@@ -186,6 +186,9 @@ client_stats_timer_proc(TimerClientData client_data, struct iperf_time *nowP)
 
     if (test->done)
         return;
+    if (test->debug) {
+        printf("%s: test->stats_callback \n", __func__);
+    }
     if (test->stats_callback)
 	    test->stats_callback(test);
 }
@@ -198,7 +201,7 @@ client_reporter_timer_proc(TimerClientData client_data, struct iperf_time *nowP)
     if (test->done)
         return;
     if (test->reporter_callback)
-	test->reporter_callback(test);
+	    test->reporter_callback(test);
 }
 
 static int
@@ -218,6 +221,9 @@ create_client_timers(struct iperf_test * test)
     }
     cd.p = test;
     test->timer = test->stats_timer = test->reporter_timer = NULL;
+    if (test->debug) {
+        printf("%s: test->duration %d test->stats_interval %.2f test->reporter_interval %.2f\n", __func__, test->duration, test->omit);
+    }
     if (test->duration != 0) {
 	    test->done = 0;
         test->timer = tmr_create(&now, test_timer_proc, cd, ( test->duration + test->omit ) * SEC_TO_US, 0);

@@ -3463,47 +3463,46 @@ iperf_print_intermediate(struct iperf_test *test)
      */
     int interval_ok = 0;
     SLIST_FOREACH(sp, &test->streams, streams) {
-	irp = TAILQ_LAST(&sp->result->interval_results, irlisthead);
-	if (irp) {
-	    iperf_time_diff(&irp->interval_start_time, &irp->interval_end_time, &temp_time);
-	    double interval_len = iperf_time_in_secs(&temp_time);
-	    if (test->debug) {
-		printf("interval_len %f bytes_transferred %" PRIu64 "\n", interval_len, irp->bytes_transferred);
-	    }
+	    irp = TAILQ_LAST(&sp->result->interval_results, irlisthead);
+	    if (irp) {
+	        iperf_time_diff(&irp->interval_start_time, &irp->interval_end_time, &temp_time);
+	        double interval_len = iperf_time_in_secs(&temp_time);
+	        if (test->debug) {
+		        printf("interval_len %f bytes_transferred %" PRIu64 "\n", interval_len, irp->bytes_transferred);
+	        }
 
 	    /*
 	     * If the interval is at least 10% the normal interval
 	     * length, or if there were actual bytes transferred,
 	     * then we want to keep this interval.
 	     */
-	    if (interval_len >= test->stats_interval * 0.10 ||
-		irp->bytes_transferred > 0) {
-		interval_ok = 1;
-		if (test->debug) {
-		    printf("interval forces keep\n");
-		}
+	        if (interval_len >= test->stats_interval * 0.10 || irp->bytes_transferred > 0) {
+		        interval_ok = 1;
+		        if (test->debug) {
+		            printf("interval forces keep\n");
+		        }
+	        }
 	    }
-	}
     }
     if (!interval_ok) {
-	if (test->debug) {
-	    printf("ignoring short interval with no data\n");
-	}
-	return;
+	    if (test->debug) {
+	        printf("ignoring short interval with no data\n");
+	    }
+	    return;
     }
 
     if (test->json_output) {
         json_interval = cJSON_CreateObject();
-	if (json_interval == NULL)
-	    return;
-	cJSON_AddItemToArray(test->json_intervals, json_interval);
+	    if (json_interval == NULL)
+	        return;
+	    cJSON_AddItemToArray(test->json_intervals, json_interval);
         json_interval_streams = cJSON_CreateArray();
-	if (json_interval_streams == NULL)
-	    return;
-	cJSON_AddItemToObject(json_interval, "streams", json_interval_streams);
-    } else {
-        json_interval = NULL;
-        json_interval_streams = NULL;
+	    if (json_interval_streams == NULL)
+	        return;
+	    cJSON_AddItemToObject(json_interval, "streams", json_interval_streams);
+        } else {
+            json_interval = NULL;
+            json_interval_streams = NULL;
     }
 
     /*
