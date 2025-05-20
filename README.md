@@ -48,7 +48,7 @@ cd /src
 
 
 --port 指定客户端数据连接的客户端端口
--l     会设置test->settings->blksize，tcp默认131072, udp默认1440
+-l     每次发送数据的大小，会设置test->settings->blksize，tcp默认131072, udp默认1440
 -b     带宽，tcp中设置Target Bitrate，1M是1000000，udp中设置bandwidth，1G是10000000000
 
 
@@ -135,4 +135,12 @@ HAVE_SO_MAX_PACING_RATE  1
 5. 数据socket发送test->cookie    37B         获取cookie，发送状态01    1B    TEST_START
 6. Starting Test                            发送状态02              1B     TEST_RUNNING
 7. pthread_create发送数据       131072B      读数据
+
+8. 结束后                                    发送交换结果13           1B     EXCHANGE_RESULTS
+9. 发送结果  4B+数据      
+10. 获取服务端结果 
+11.                                         发送显示结果14           1B     DISPLAY_RESULTS
+12. 发送IPERF_DONE              1B                                         IPERF_DONE
+4次挥手
+tcp_send_fin
 ``` 

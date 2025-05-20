@@ -315,7 +315,7 @@ netannounce(int domain, int proto, const char *local, const char *bind_dev, int 
         return -1;
     }
     if (debug)
-        printf("%s: create socket %d ai_family %d proto %d\n", __func__, s, res->ai_family, proto);
+        printf("create socket %d ai_family %d proto %d\n", s, res->ai_family, proto);
 
     if (bind_dev) {
 #if defined(HAVE_SO_BINDTODEVICE)

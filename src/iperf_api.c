@@ -2155,7 +2155,7 @@ iperf_exchange_parameters(struct iperf_test *test)
 
         // Send the control message to create streams and start the test
         if (test->debug)
-                printf("iperf_set_send_state 3\n");
+            printf("iperf_set_send_state CREATE_STREAMS 0a\n");
 	    if (iperf_set_send_state(test, CREATE_STREAMS) != 0)
             return -1;
     }
@@ -4446,7 +4446,7 @@ iperf_new_stream(struct iperf_test *test, int s, int sender)
     }
     sp->pending_size = 0;
 
-    /* Set socket */
+    /* 数据的socket */
     sp->socket = s;
 
     sp->snd = test->protocol->send;
