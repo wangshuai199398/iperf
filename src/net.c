@@ -505,7 +505,9 @@ Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
 {
     register ssize_t r;
     register size_t nleft = count;
-
+    if (debug) {
+        printf("%s: count %zu\n", __func__, count);
+    }
     while (nleft > 0) {
         if (debug) {
             print_hex(buf, nleft);
@@ -531,10 +533,11 @@ Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
 	        return NET_SOFTERROR;
 	    nleft -= r;
 	    buf += r;
+        if (debug) {
+            printf("%s: count %zu\n", __func__, r);
+        }
     }
-    if (debug) {
-        printf("%s: count %zu\n", __func__, count);
-    }
+
     return count;
 }
 
