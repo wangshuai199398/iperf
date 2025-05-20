@@ -61,11 +61,10 @@ iperf_client_worker_run(void *s) {
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
     //设置线程取消状态，允许线程响应取消请求，第二个参数是 NULL，表示不需要返回旧的取消状态
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-
+    //if (test->debug) {
+    //    printf("%s: sp->sender %d, test->done %d sp->done %d\n", __func__, sp->sender, test->done, sp->done);
+    //}
     while (!(test->done) && !(sp->done)) {
-        if (test->debug) {
-            printf("%s: sp->sender %d, test->done %d sp->done %d\n", __func__, sp->sender, test->done, sp->done);
-        }
         if (sp->sender) {
             if (iperf_send_mt(sp) < 0) {
                 goto cleanup_and_fail;
