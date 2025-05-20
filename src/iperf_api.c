@@ -1921,8 +1921,6 @@ iperf_send_mt(struct iperf_stream *sp)
     struct iperf_time now;
     int no_throttle_check;
 
-    if (test->debug)
-        printf("%s: test->settings->burst %d test->multisend %d test->settings->rate %lu\n", __func__, test->settings->burst, test->multisend, test->settings->rate);
     /* Can we do multisend mode? */
     if (test->settings->burst != 0)
         multisend = test->settings->burst;
@@ -1933,6 +1931,9 @@ iperf_send_mt(struct iperf_stream *sp)
 
     /* Should bitrate throttle be checked for every send */
     no_throttle_check = test->settings->rate != 0 && test->settings->burst == 0;
+
+    if (test->debug)
+        printf("%s: test->settings->burst %d test->multisend %d test->settings->rate %lu\n", __func__, test->settings->burst, test->multisend, test->settings->rate);
 
     for (; multisend > 0; --multisend) {
 	    if (no_throttle_check)
