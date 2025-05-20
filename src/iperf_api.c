@@ -1979,13 +1979,12 @@ iperf_recv_mt(struct iperf_stream *sp)
 {
     int r;
     struct iperf_test *test = sp->test;
-
-	    if ((r = sp->rcv(sp)) < 0) {
+	if ((r = sp->rcv(sp)) < 0) {
 		i_errno = IESTREAMREAD;
 		return r;
-	    }
-	    test->bytes_received += r;
-	    ++test->blocks_received;
+	}
+	test->bytes_received += r;
+	++test->blocks_received;
 
     return 0;
 }

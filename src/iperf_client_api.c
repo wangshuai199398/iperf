@@ -187,7 +187,7 @@ client_stats_timer_proc(TimerClientData client_data, struct iperf_time *nowP)
     if (test->done)
         return;
     if (test->stats_callback)
-	test->stats_callback(test);
+	    test->stats_callback(test);
 }
 
 static void
