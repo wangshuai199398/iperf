@@ -195,9 +195,11 @@ iperf_accept(struct iperf_test *test)
             return -1;
         if (iperf_exchange_parameters(test) < 0)
             return -1;
-	    if (test->server_affinity != -1)
+	    if (test->server_affinity != -1) {
 	        if (iperf_setaffinity(test, test->server_affinity) != 0)
 		        return -1;
+        }
+
         if (test->on_connect)
             test->on_connect(test);
     } else {

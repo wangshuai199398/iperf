@@ -2125,8 +2125,10 @@ iperf_exchange_parameters(struct iperf_test *test)
         }
 #endif //HAVE_SSL
         if ((s = test->protocol->listen(test)) < 0) {
-            if (test->debug)
+            if (test->debug) {
                 printf("iperf_set_send_state 2\n");
+            }
+
 	        if (iperf_set_send_state(test, SERVER_ERROR) != 0)
                 return -1;
             err = htonl(i_errno);
