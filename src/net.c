@@ -444,7 +444,9 @@ Nread(int fd, char *buf, size_t count, int prot, int debug)
             return 0;
         }
     }
-
+    if (debug) {
+        printf("%s: count %zu\n", __func__, count);
+    }
     while (nleft > 0) {
         r = read(fd, buf, nleft);
         if (r < 0) {
@@ -456,7 +458,7 @@ Nread(int fd, char *buf, size_t count, int prot, int debug)
         } else if (r == 0)
             break;
         if (debug) {
-            printf("Nread %ld\n", r);
+            printf("Nread success %ld\n", r);
             print_hex(buf, r);
         }
 
@@ -534,7 +536,7 @@ Nwrite(int fd, const char *buf, size_t count, int prot, int debug)
 	    nleft -= r;
 	    buf += r;
         if (debug) {
-            printf("%s: count %zu\n", __func__, r);
+            printf("%s: write success %zu, nleft %zu\n", __func__, r, nleft);
         }
     }
 
