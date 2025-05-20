@@ -854,7 +854,7 @@ iperf_run_server(struct iperf_test *test)
 
 		            // Begin calculating CPU utilization
 		            cpu_util(NULL);
-
+                    //服务端发送01状态
 		            if (iperf_set_send_state(test, TEST_START) != 0) {
 			            cleanup_server(test);
                         return -1;
@@ -876,6 +876,7 @@ iperf_run_server(struct iperf_test *test)
 			                cleanup_server(test);
 			                return -1;
 			            }
+                    //服务端发送02状态
 		            if (iperf_set_send_state(test, TEST_RUNNING) != 0) {
 			            cleanup_server(test);
                         return -1;

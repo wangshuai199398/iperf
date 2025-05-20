@@ -1845,7 +1845,7 @@ iperf_set_send_state(struct iperf_test *test, signed char state)
     if (test->ctrl_sck >= 0) {
         test->state = state;
         if (test->debug)
-            printf("Nwrite state\n");
+            printf("Nwrite state 0x%x\n", state);
         if (Nwrite(test->ctrl_sck, (char*) &state, sizeof(state), Ptcp, test->debug) < 0) {
 	        i_errno = IESENDMESSAGE;
 	        return -1;
