@@ -64,7 +64,7 @@ iperf_client_worker_run(void *s) {
 
     while (!(test->done) && !(sp->done)) {
         if (test->debug) {
-            printf("%s: sp->sender %d, test->done %d sp->done %d", __func__, sp->sender, test->done, sp->done);
+            printf("%s: sp->sender %d, test->done %d sp->done %d\n", __func__, sp->sender, test->done, sp->done);
         }
         if (sp->sender) {
             if (iperf_send_mt(sp) < 0) {

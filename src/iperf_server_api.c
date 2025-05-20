@@ -80,8 +80,7 @@ iperf_server_worker_run(void *s) {
             if (iperf_send_mt(sp) < 0) {
                 goto cleanup_and_fail;
             }
-        }
-        else {
+        } else {
             if (iperf_recv_mt(sp) < 0) {
                 goto cleanup_and_fail;
             }

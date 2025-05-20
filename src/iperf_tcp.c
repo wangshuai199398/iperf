@@ -83,10 +83,10 @@ int
 iperf_tcp_send(struct iperf_stream *sp)
 {
     int r;
-
+    /*
     if (sp->test->debug) {
-        printf("%s: pending_size %d sp->settings->blksize %d sp->test->zerocopy %d\n", __func__, sp->pending_size, sp->settings->blksize, sp->test->zerocopy);
-    }
+        printf("%s: pending_size %d sp->settings->blksize %d sp->test->zerocopy %d\n", __func__, sp->pending_size, sp->settings->blksize, sp->test->zerocopy);//0 131072 0
+    }*/
     if (!sp->pending_size)
 	    sp->pending_size = sp->settings->blksize;
 
@@ -98,10 +98,10 @@ iperf_tcp_send(struct iperf_stream *sp)
 
     if (r < 0)
         return r;
-    
+    /*
     if (sp->test->debug) {
         printf("%s: pending_size %d r %d sp->result->bytes_sent %lu sp->result->bytes_sent_this_interval %lu\n", __func__, sp->pending_size, r, sp->result->bytes_sent, sp->result->bytes_sent_this_interval);
-    }
+    }*/
 
     sp->pending_size -= r;
     sp->result->bytes_sent += r;

@@ -1940,24 +1940,20 @@ iperf_send_mt(struct iperf_stream *sp)
 	    streams_active = 0;
 	    {
 	        if (sp->green_light && sp->sender) {
-                if (test->debug)
-                    printf("%s: multisend %d test->settings->bytes %lu test->bytes_sent %lu test->settings->blocks %lu test->blocks_sent %lu\n", __func__, multisend, test->settings->bytes, test->bytes_sent, test->settings->blocks, test->blocks_sent);
+                //if (test->debug)
+                //   printf("%s: multisend %d test->settings->bytes %lu test->bytes_sent %lu test->settings->blocks %lu test->blocks_sent %lu\n", __func__, multisend, test->settings->bytes, test->bytes_sent, test->settings->blocks, test->blocks_sent);
                 // XXX If we hit one of these ending conditions maybe
                 // want to stop even trying to send something?
                 if (multisend > 1 && test->settings->bytes != 0 && test->bytes_sent >= test->settings->bytes)
                     break;
                 if (multisend > 1 && test->settings->blocks != 0 && test->blocks_sent >= test->settings->blocks)
                     break;
-                if (test->debug)
-                    printf("%s: sp->snd\n", __func__);
 		        if ((r = sp->snd(sp)) < 0) {//iperf_tcp_send
 		            if (r == NET_SOFTERROR)
 			            break;
 		                i_errno = IESTREAMWRITE;
 		                return r;
 		        }
-                if (test->debug)
-                    printf("%s: sp->snd end!\n", __func__);
 		        streams_active = 1;
 		        test->bytes_sent += r;
 		        if (!sp->pending_size)
