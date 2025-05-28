@@ -52,6 +52,7 @@ cd /src
 -b     带宽，tcp中设置Target Bitrate，1M是1000000，udp中设置bandwidth，1G是10000000000
 
 
+TCP MSS: 1448 (default)
 
 连接
 ---------
